@@ -153,7 +153,7 @@ export default function App() {
     <div class="shell">
       <header class="bar">
         <span class="brand">
-          START<span class="dot">.</span>
+          NEW TAB<span class="dot">.</span>
         </span>
         <div class="bar-actions">
           <Show when={!online()}>

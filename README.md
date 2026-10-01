@@ -1,6 +1,6 @@
-# START
+# New Tab
 
-A minimalist **brutalist** startpage — pure black/white with a red accent, no
+A minimalist **brutalist** new tab page — pure black/white with a red accent, no
 border-radius, hard shadows. Built with SolidJS + Vite, compiled to a static
 bundle, and installable/offline via a service worker.
 
@@ -23,6 +23,31 @@ bundle, and installable/offline via a service worker.
 - **Offline:** the entire app shell is precached by Workbox; new versions prompt
   before reloading, and an `OFFLINE` badge appears when the network drops.
 - **Security:** strict Content-Security-Policy via Cloudflare `_headers`.
+
+## Project layout
+
+```
+src/
+  index.tsx              entry
+  App.tsx                layout shell + global keyboard shortcuts
+  types.ts               shared types (Settings / Engine / LinkGroup / …)
+  config/defaults.ts     default engine + link groups (versioned in git)
+  lib/
+    search.ts            engine table, URL builder, URL-vs-query detection
+    storage.ts           load/save/merge/validate/import/export
+    time.ts              HTTPS time parsing, offsets, timezone helpers
+    theme.ts             system color-scheme preference + resolution
+    focus.ts             focusable selector + Tab containment
+    bookmarks.ts         Netscape bookmark HTML import
+    links.ts             monogram + hostname + favicon URL helpers
+    palette.ts           link ranking for the command palette
+    cache.ts             clear the service-worker favicon cache
+    weather.ts           Open-Meteo URL/parse + WMO codes + reverse geocoding
+  store/                 Solid stores: settings, clock, weather, pwa
+  components/            SearchBar, CommandPalette, QuickLinks, Clock,
+                         Weather, ThemeToggle, UpdateBanner, Settings
+  styles/                tokens.css + app.css
+```
 
 ## Development
 
@@ -103,6 +128,7 @@ load the page once, then go offline in DevTools and reload.
 
 ## Quality
 
-`pnpm coverage` enforces **100%** statements, branches, functions and lines.
-CI (`.github/workflows/ci.yml`) runs coverage and the production build on every
-push and pull request.
+`pnpm test` runs the logic, store and DOM component suites (**225** tests across
+**24** files), and `pnpm coverage` enforces **100%** statements, branches,
+functions and lines. CI (`.github/workflows/ci.yml`) runs coverage and the
+production build on every push and pull request.

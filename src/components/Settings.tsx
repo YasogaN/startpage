@@ -124,7 +124,7 @@ export default function SettingsPanel(props: Props) {
     const url = URL.createObjectURL(blob)
     const anchor = document.createElement('a')
     anchor.href = url
-    anchor.download = 'startpage-settings.json'
+    anchor.download = 'new-tab-settings.json'
     anchor.click()
     URL.revokeObjectURL(url)
   }

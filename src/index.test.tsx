@@ -16,7 +16,7 @@ describe('bootstrap', () => {
         onNeedRefresh: expect.any(Function),
       }),
     )
-    expect(document.querySelector('#root')?.textContent).toContain('START')
+    expect(document.querySelector('#root')?.textContent).toContain('NEW TAB')
   })
 
   it('throws when the mount element is missing', async () => {
