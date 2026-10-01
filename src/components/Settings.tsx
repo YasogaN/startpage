@@ -222,6 +222,36 @@ export default function SettingsPanel(props: Props) {
               </label>
             </div>
 
+            <div class="row">
+              <label class="field">
+                <span>LINK ICONS</span>
+                <span class="check">
+                  <input
+                    type="checkbox"
+                    checked={settings.favicons}
+                    onChange={(event) =>
+                      setSettings('favicons', event.currentTarget.checked)
+                    }
+                  />
+                  <span>SHOW FAVICONS</span>
+                </span>
+              </label>
+
+              <label class="field">
+                <span>SEARCH SUGGESTIONS</span>
+                <span class="check">
+                  <input
+                    type="checkbox"
+                    checked={settings.suggestions}
+                    onChange={(event) =>
+                      setSettings('suggestions', event.currentTarget.checked)
+                    }
+                  />
+                  <span>ENABLE SUGGESTIONS</span>
+                </span>
+              </label>
+            </div>
+
             <div class="row-buttons">
               <button
                 type="button"

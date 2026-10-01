@@ -1,18 +1,43 @@
-import { For } from 'solid-js'
+import { For, Show, createSignal } from 'solid-js'
+import { faviconUrl, hostnameOf, monogram } from '../lib/links'
 import { settings } from '../store/settings'
+import type { LinkItem } from '../types'
 
-/** First alphanumeric character of a label, uppercased. */
-function monogram(label: string): string {
-  const match = label.trim().match(/[a-z0-9]/i)
-  return match ? match[0].toUpperCase() : '?'
-}
+function Tile(props: { link: LinkItem }) {
+  const [failed, setFailed] = createSignal(false)
+  const icon = () =>
+    settings.favicons && !failed() ? faviconUrl(props.link.url) : null
 
-function host(url: string): string {
-  try {
-    return new URL(url).hostname.replace(/^www\./, '')
-  } catch {
-    return url
-  }
+  return (
+    <li>
+      <a class="tile" href={props.link.url}>
+        <span class="tile-icon">
+          <Show
+            when={icon()}
+            fallback={
+              <span class="mono" aria-hidden="true">
+                {monogram(props.link.label)}
+              </span>
+            }
+          >
+            <img
+              class="favicon"
+              src={icon()!}
+              alt=""
+              width="24"
+              height="24"
+              loading="lazy"
+              onError={() => setFailed(true)}
+            />
+          </Show>
+        </span>
+        <span class="tile-text">
+          <span class="tile-label">{props.link.label}</span>
+          <span class="tile-host">{hostnameOf(props.link.url)}</span>
+        </span>
+      </a>
+    </li>
+  )
 }
 
 export default function QuickLinks() {
@@ -23,21 +48,7 @@ export default function QuickLinks() {
           <section class="group">
             <h2 class="group-title">{group.title}</h2>
             <ul class="tiles">
-              <For each={group.links}>
-                {(link) => (
-                  <li>
-                    <a class="tile" href={link.url}>
-                      <span class="mono" aria-hidden="true">
-                        {monogram(link.label)}
-                      </span>
-                      <span class="tile-text">
-                        <span class="tile-label">{link.label}</span>
-                        <span class="tile-host">{host(link.url)}</span>
-                      </span>
-                    </a>
-                  </li>
-                )}
-              </For>
+              <For each={group.links}>{(link) => <Tile link={link} />}</For>
             </ul>
           </section>
         )}

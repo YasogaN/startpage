@@ -30,5 +30,9 @@ export interface Settings {
   timeZone: string
   /** Sync the clock against a network time source. */
   syncTime: boolean
+  /** Show site favicons on link tiles instead of monograms. */
+  favicons: boolean
+  /** Show on-device suggestions (recent searches + saved links). */
+  suggestions: boolean
   groups: LinkGroup[]
 }

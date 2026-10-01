@@ -34,8 +34,6 @@ describe('Clock', () => {
       clock.configure({ now: () => at(iso) })
       const { container, dispose } = mount()
       expect(container.querySelector('.clock-greet')?.textContent).toBe(expected)
-      // Before any sync the clock reports local time.
-      expect(container.querySelector('.clock-src')?.textContent).toBe('LOCAL TIME')
       dispose()
       container.remove()
     }
@@ -70,24 +68,5 @@ describe('Clock', () => {
 
     dispose()
     expect(vi.getTimerCount()).toBe(0)
-  })
-
-  it('labels a synced time source', async () => {
-    setSettings('timeZone', 'UTC')
-    clock.configure({
-      now: () => at('2026-09-27T10:00:00Z'),
-      fetchImpl: (async () => ({
-        ok: true,
-        text: async () => 'ts=1700000000.000',
-      })) as unknown as typeof fetch,
-    })
-    await clock.sync(true)
-
-    const { container, dispose } = mount()
-    expect(container.querySelector('.clock-src')?.textContent).toBe(
-      'SYNC: CLOUDFLARE',
-    )
-
-    dispose()
   })
 })

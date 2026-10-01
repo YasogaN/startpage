@@ -6,13 +6,16 @@ bundle, and installable/offline via a service worker.
 
 - **Search:** DuckDuckGo (default) and DuckDuckGo No-AI, with native `!bangs`.
   Bare domains navigate directly.
-- **Links:** monogram tiles (no external favicon requests — nothing leaks), plus
-  import of browser bookmark HTML exports.
+- **Links:** one column per group. Favicons come from DuckDuckGo's icon service
+  and are drawn as themed black/white silhouettes (with a monogram fallback);
+  browser bookmark HTML exports can be imported.
+- **Suggestions:** optional, on-device — matching saved links and recent
+  searches. No proxy, no network.
 - **Settings:** edit links, import/export JSON, import bookmarks, engine, theme
   and time; reset.
 - **Theme:** dark, light, or follow the system (`prefers-color-scheme`).
-- **Privacy:** no telemetry and no external fonts. The only outbound request is
-  the optional network-time sync.
+- **Privacy:** no telemetry, no external fonts (IBM Plex Mono is self-hosted).
+  The only outbound requests are optional network-time sync and favicons.
 - **Offline:** the entire app shell is precached by Workbox; new versions prompt
   before reloading.
 - **Security:** strict Content-Security-Policy via Cloudflare `_headers`.

@@ -15,6 +15,8 @@ describe('Content-Security-Policy', () => {
   it('restricts scripts, connections and framing', () => {
     const headers = readFileSync('public/_headers', 'utf8')
     expect(headers).toContain("script-src 'self'")
+    expect(headers).toContain("font-src 'self'")
+    expect(headers).toContain('https://icons.duckduckgo.com')
     expect(headers).toContain('https://one.one.one.one')
     expect(headers).toContain('https://timeapi.io')
     expect(headers).toContain("frame-ancestors 'none'")

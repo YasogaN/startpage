@@ -42,6 +42,13 @@ describe('sanitizeSettings', () => {
     expect(settings.engine).toBe('ddg')
   })
 
+  it('sanitizes the display and suggestion toggles', () => {
+    expect(sanitizeSettings({ favicons: false }).favicons).toBe(false)
+    expect(sanitizeSettings({ favicons: 'nope' }).favicons).toBe(true)
+    expect(sanitizeSettings({ suggestions: true }).suggestions).toBe(true)
+    expect(sanitizeSettings({ suggestions: 1 }).suggestions).toBe(false)
+  })
+
   it('sanitizes the time settings', () => {
     expect(sanitizeSettings({ syncTime: false }).syncTime).toBe(false)
     expect(sanitizeSettings({ syncTime: 'nope' }).syncTime).toBe(true)

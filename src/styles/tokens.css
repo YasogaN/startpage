@@ -1,41 +1,36 @@
 :root {
-  --red: #ff2d20;
+  --red: #8b0000;
+  --red-bright: #ff2d20;
   --border-w: 2px;
-  --shadow-off: 4px;
-  --font-mono: ui-monospace, "SFMono-Regular", "JetBrains Mono",
-    "IBM Plex Mono", Menlo, Consolas, monospace;
-  --font-sans: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --rule-w: 4px;
+  --shadow-off: 5px;
+  --frame: 10px;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas,
+    monospace;
 
-  /* Dark is the default; the inline script in index.html sets data-theme
-     before first paint to avoid a flash. */
+  /* Dark is the default; theme-boot.js sets data-theme before first paint. */
   --bg: #000;
   --fg: #fff;
-  --muted: #8f8f8f;
+  --muted: #9a9a9a;
   --line: #fff;
   --panel: #0a0a0a;
   --accent: var(--red);
   --accent-fg: #fff;
-  color-scheme: dark;
-}
-
-:root[data-theme='dark'] {
-  --bg: #000;
-  --fg: #fff;
-  --muted: #8f8f8f;
-  --line: #fff;
-  --panel: #0a0a0a;
-  --accent: var(--red);
-  --accent-fg: #fff;
+  --accent-text: var(--red-bright);
+  /* Turn the one fetched favicon into a themed silhouette. */
+  --icon-filter: brightness(0) invert(1);
   color-scheme: dark;
 }
 
 :root[data-theme='light'] {
   --bg: #fff;
   --fg: #000;
-  --muted: #666;
+  --muted: #555;
   --line: #000;
   --panel: #f2f2f2;
   --accent: var(--red);
   --accent-fg: #fff;
+  --accent-text: var(--red);
+  --icon-filter: brightness(0);
   color-scheme: light;
 }

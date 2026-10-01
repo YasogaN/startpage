@@ -10,7 +10,9 @@ everything for offline use.
 | Area | Decision |
 | --- | --- |
 | Stack | SolidJS + Vite + TypeScript (static `dist/`) |
-| Aesthetic | Minimalist brutalism — `#000` / `#fff`, red `#ff2d20`, 0 radius, 2px rules, hard shadows, uppercase mono labels |
+| Aesthetic | Minimalist brutalism — `#000` / `#fff`, dark red `#8b0000`, IBM Plex Mono, 0 radius, 2–4px rules, hard shadows, uppercase labels |
+| Icons | DuckDuckGo favicon service, rendered as themed black/white silhouettes; monogram fallback |
+| Suggestions | On-device (recent searches + saved links), opt-in — no proxy, no network |
 | Search | DuckDuckGo (initial default) + DuckDuckGo No-AI, visible segmented toggle |
 | Search URLs | `https://duckduckgo.com/?q=%s` and `https://noai.duckduckgo.com/?q=%s` |
 | Bangs | Passthrough — DDG parses `!bang` from the query, no client work |

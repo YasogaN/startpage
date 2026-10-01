@@ -48,6 +48,12 @@ export function sanitizeSettings(raw: unknown): Settings {
   if (typeof raw.syncTime === 'boolean') {
     base.syncTime = raw.syncTime
   }
+  if (typeof raw.favicons === 'boolean') {
+    base.favicons = raw.favicons
+  }
+  if (typeof raw.suggestions === 'boolean') {
+    base.suggestions = raw.suggestions
+  }
   if (raw.timeZone === '') {
     base.timeZone = ''
   } else if (typeof raw.timeZone === 'string' && isValidTimeZone(raw.timeZone)) {

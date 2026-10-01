@@ -27,6 +27,8 @@ export const DEFAULT_SETTINGS: Settings = {
   engine: 'ddg',
   timeZone: '',
   syncTime: true,
+  favicons: true,
+  suggestions: false,
   groups: [
     {
       title: 'Daily',

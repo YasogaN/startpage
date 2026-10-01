@@ -54,10 +54,6 @@ export default function Clock() {
   const time = () => formatters().time.format(instant())
   const date = () => formatters().date.format(instant()).toUpperCase()
   const hour = () => Number(formatters().hour.format(instant()))
-  const source = () =>
-    clock.source() === 'local'
-      ? 'LOCAL TIME'
-      : `SYNC: ${clock.source().toUpperCase()}`
 
   return (
     <div class="clock" role="timer" aria-label={`${time()} ${date()}`}>
@@ -70,7 +66,6 @@ export default function Clock() {
       <div class="clock-greet" aria-hidden="true">
         {greeting(hour())}
       </div>
-      <div class="clock-src">{source()}</div>
     </div>
   )
 }

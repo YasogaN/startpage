@@ -40,6 +40,8 @@ afterEach(() => {
   setSettings('engine', defaults.engine)
   setSettings('timeZone', defaults.timeZone)
   setSettings('syncTime', defaults.syncTime)
+  setSettings('favicons', defaults.favicons)
+  setSettings('suggestions', defaults.suggestions)
   setSettings('groups', defaults.groups)
 })
 
@@ -131,6 +133,22 @@ describe('SettingsPanel', () => {
     expect(
       container.querySelectorAll('#timezone-list option').length,
     ).toBeGreaterThan(0)
+
+    dispose()
+  })
+
+  it('toggles favicons and suggestions', () => {
+    const { container, dispose } = mount()
+    const boxes = container.querySelectorAll<HTMLInputElement>(
+      'input[type="checkbox"]',
+    )
+    expect(boxes).toHaveLength(3)
+
+    boxes[1].click()
+    expect(settings.favicons).toBe(false)
+
+    boxes[2].click()
+    expect(settings.suggestions).toBe(true)
 
     dispose()
   })

@@ -33,6 +33,8 @@ function resetSettings() {
   setSettings('engine', defaults.engine)
   setSettings('timeZone', defaults.timeZone)
   setSettings('syncTime', defaults.syncTime)
+  setSettings('favicons', defaults.favicons)
+  setSettings('suggestions', defaults.suggestions)
   setSettings('groups', defaults.groups)
 }
 

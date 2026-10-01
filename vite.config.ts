@@ -51,6 +51,18 @@ export default defineConfig(({ mode }) => ({
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
+        runtimeCaching: [
+          {
+            // Cache favicons so tiles keep their icons offline.
+            urlPattern: /^https:\/\/icons\.duckduckgo\.com\//,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'favicons',
+              expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 30 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+        ],
       },
     }),
   ],
