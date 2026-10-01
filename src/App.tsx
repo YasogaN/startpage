@@ -5,6 +5,7 @@ import SearchBar from './components/SearchBar'
 import SettingsPanel from './components/Settings'
 import ThemeToggle from './components/ThemeToggle'
 import UpdateBanner from './components/UpdateBanner'
+import Weather from './components/Weather'
 import {
   ambientMatchMedia,
   resolveTheme,
@@ -13,6 +14,7 @@ import {
 } from './lib/theme'
 import { clock } from './store/clock'
 import { settings, setSettings } from './store/settings'
+import { weather } from './store/weather'
 
 export default function App() {
   let inputEl: HTMLInputElement | undefined
@@ -35,6 +37,15 @@ export default function App() {
     if (settings.syncTime) untrack(() => void clock.sync())
   })
 
+  // Refresh weather when it is enabled, or when the location/unit changes.
+  createEffect(() => {
+    const { enabled, latitude, longitude, unit } = settings.weather
+    if (enabled && latitude !== null && longitude !== null) {
+      void unit
+      untrack(() => void weather.refresh())
+    }
+  })
+
   onMount(() => {
     const unsubscribe = subscribeSystemTheme(ambientMatchMedia(), (dark) =>
       setSystemDark(dark),
@@ -48,6 +59,14 @@ export default function App() {
       30 * 60 * 1000,
     )
     onCleanup(() => window.clearInterval(syncId))
+
+    const weatherId = window.setInterval(
+      () => {
+        if (settings.weather.enabled) void weather.refresh()
+      },
+      15 * 60 * 1000,
+    )
+    onCleanup(() => window.clearInterval(weatherId))
 
     const onKey = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null
@@ -120,6 +139,7 @@ export default function App() {
 
       <main class="main">
         <Clock />
+        <Weather />
         <SearchBar
           registerInput={(el) => {
             inputEl = el

@@ -9,13 +9,14 @@ bundle, and installable/offline via a service worker.
 - **Links:** one column per group. Favicons come from DuckDuckGo's icon service
   and sit on a neutral chip so they read in both themes (with a monogram
   fallback); browser bookmark HTML exports can be imported.
-- **Suggestions:** optional, on-device — matching saved links and recent
-  searches. No proxy, no network.
-- **Settings:** edit links, import/export JSON, import bookmarks, engine, theme
-  and time; reset.
+- **Weather:** optional current conditions via Open-Meteo, using your browser
+  location or manual coordinates.
+- **Settings:** edit links, import/export JSON, import bookmarks, engine, theme,
+  time and weather; reset.
 - **Theme:** dark, light, or follow the system (`prefers-color-scheme`).
 - **Privacy:** no telemetry, no external fonts (IBM Plex Mono is self-hosted).
-  The only outbound requests are optional network-time sync and favicons.
+  The only outbound requests are optional clock sync, link favicons, and —
+  only if you enable it — weather.
 - **Offline:** the entire app shell is precached by Workbox; new versions prompt
   before reloading.
 - **Security:** strict Content-Security-Policy via Cloudflare `_headers`.
@@ -51,6 +52,18 @@ the IANA timezone is a setting — the clock formats using an explicit zone, so
 you get your real local time. Change it, disable syncing, or force a sync in
 **SETTINGS**.
 
+## Weather
+
+Weather is **off by default**. Turn it on in **SETTINGS → WEATHER**, then either
+press **USE MY LOCATION** (browser geolocation prompt) or enter a latitude and
+longitude manually. Data comes from [Open-Meteo](https://open-meteo.com) — no
+API key, CORS-open — and the last reading is cached so something still shows
+offline. Coordinates are stored only in your own `localStorage`.
+
+There is intentionally **no search autocomplete**: DuckDuckGo's suggestions send
+no CORS headers and no JSONP, so they cannot be read from the browser without a
+proxy, and adding a proxy was not wanted.
+
 ## Deploy to Cloudflare Pages
 
 | Setting | Value |
@@ -59,9 +72,10 @@ you get your real local time. Change it, disable syncing, or force a sync in
 | Build output directory | `dist` |
 | Node version | 22+ |
 
-`public/_headers` ships with the build and sets a strict Content-Security-Policy,
-immutable caching for `/assets/*`, and `no-cache` for `/sw.js`, `/index.html`
-and the manifest, so service-worker updates are picked up immediately.
+`public/_headers` ships with the build and sets a strict Content-Security-Policy
+(`connect-src` allows only the clock, favicon and Open-Meteo hosts), immutable
+caching for `/assets/*`, and `no-cache` for `/sw.js`, `/index.html` and the
+manifest, so service-worker updates are picked up immediately.
 
 ## Keyboard shortcuts
 

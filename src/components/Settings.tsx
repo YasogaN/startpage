@@ -7,7 +7,8 @@ import { exportSettings, parseImport } from '../lib/storage'
 import { detectedTimeZone, isValidTimeZone, listTimeZones } from '../lib/time'
 import { clock } from '../store/clock'
 import { settings, setSettings } from '../store/settings'
-import type { EngineId, LinkGroup, ThemeMode } from '../types'
+import { statusLabel, weather } from '../store/weather'
+import type { EngineId, LinkGroup, TemperatureUnit, ThemeMode } from '../types'
 
 interface Props {
   open: boolean
@@ -38,6 +39,21 @@ export default function SettingsPanel(props: Props) {
       'timeZone',
       trimmed === '' || isValidTimeZone(trimmed) ? trimmed : '',
     )
+  }
+
+  const setCoordinate = (key: 'latitude' | 'longitude', raw: string) => {
+    const trimmed = raw.trim()
+    const parsed = trimmed === '' ? null : Number(trimmed)
+    setSettings(
+      'weather',
+      key,
+      parsed !== null && Number.isFinite(parsed) ? parsed : null,
+    )
+  }
+
+  const weatherStatus = () => {
+    if (weather.locating()) return 'LOCATING…'
+    return statusLabel(weather.status())
   }
 
   const mutateGroups = (fn: (groups: LinkGroup[]) => void) =>
@@ -236,20 +252,6 @@ export default function SettingsPanel(props: Props) {
                   <span>SHOW FAVICONS</span>
                 </span>
               </label>
-
-              <label class="field">
-                <span>SEARCH SUGGESTIONS</span>
-                <span class="check">
-                  <input
-                    type="checkbox"
-                    checked={settings.suggestions}
-                    onChange={(event) =>
-                      setSettings('suggestions', event.currentTarget.checked)
-                    }
-                  />
-                  <span>ENABLE SUGGESTIONS</span>
-                </span>
-              </label>
             </div>
 
             <div class="row-buttons">
@@ -272,6 +274,101 @@ export default function SettingsPanel(props: Props) {
             <datalist id="timezone-list">
               <For each={zones}>{(zone) => <option value={zone} />}</For>
             </datalist>
+
+            <h3>WEATHER</h3>
+            <div class="row">
+              <label class="field">
+                <span>SHOW WEATHER</span>
+                <span class="check">
+                  <input
+                    type="checkbox"
+                    checked={settings.weather.enabled}
+                    onChange={(event) =>
+                      setSettings(
+                        'weather',
+                        'enabled',
+                        event.currentTarget.checked,
+                      )
+                    }
+                  />
+                  <span>ENABLED</span>
+                </span>
+              </label>
+
+              <label class="field">
+                <span>UNITS</span>
+                <select
+                  class="input"
+                  value={settings.weather.unit}
+                  onChange={(event) =>
+                    setSettings(
+                      'weather',
+                      'unit',
+                      event.currentTarget.value as TemperatureUnit,
+                    )
+                  }
+                >
+                  <option value="celsius">CELSIUS</option>
+                  <option value="fahrenheit">FAHRENHEIT</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="row">
+              <label class="field">
+                <span>LATITUDE</span>
+                <input
+                  class="input"
+                  type="number"
+                  step="any"
+                  value={settings.weather.latitude ?? ''}
+                  onChange={(event) =>
+                    setCoordinate('latitude', event.currentTarget.value)
+                  }
+                />
+              </label>
+
+              <label class="field">
+                <span>LONGITUDE</span>
+                <input
+                  class="input"
+                  type="number"
+                  step="any"
+                  value={settings.weather.longitude ?? ''}
+                  onChange={(event) =>
+                    setCoordinate('longitude', event.currentTarget.value)
+                  }
+                />
+              </label>
+            </div>
+
+            <div class="row">
+              <label class="field">
+                <span>PLACE NAME</span>
+                <input
+                  class="input"
+                  value={settings.weather.label}
+                  placeholder="Optional"
+                  onInput={(event) =>
+                    setSettings('weather', 'label', event.currentTarget.value)
+                  }
+                />
+              </label>
+
+              <div class="field">
+                <span>LOCATION</span>
+                <div class="row-buttons">
+                  <button
+                    type="button"
+                    class="btn"
+                    onClick={() => void weather.useCurrentLocation()}
+                  >
+                    USE MY LOCATION
+                  </button>
+                  <span class="status-line">{weatherStatus()}</span>
+                </div>
+              </div>
+            </div>
 
             <h3>LINKS</h3>
             <For each={settings.groups}>

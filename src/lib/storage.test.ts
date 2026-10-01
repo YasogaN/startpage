@@ -42,11 +42,51 @@ describe('sanitizeSettings', () => {
     expect(settings.engine).toBe('ddg')
   })
 
-  it('sanitizes the display and suggestion toggles', () => {
+  it('sanitizes the display toggles', () => {
     expect(sanitizeSettings({ favicons: false }).favicons).toBe(false)
     expect(sanitizeSettings({ favicons: 'nope' }).favicons).toBe(true)
-    expect(sanitizeSettings({ suggestions: true }).suggestions).toBe(true)
-    expect(sanitizeSettings({ suggestions: 1 }).suggestions).toBe(false)
+  })
+
+  it('sanitizes weather settings', () => {
+    const settings = sanitizeSettings({
+      weather: {
+        enabled: true,
+        latitude: 51.5,
+        longitude: -0.12,
+        label: 'London',
+        unit: 'fahrenheit',
+      },
+    })
+    expect(settings.weather).toEqual({
+      enabled: true,
+      latitude: 51.5,
+      longitude: -0.12,
+      label: 'London',
+      unit: 'fahrenheit',
+    })
+
+    expect(sanitizeSettings({ weather: { unit: 'celsius' } }).weather.unit).toBe(
+      'celsius',
+    )
+
+    const bad = sanitizeSettings({
+      weather: {
+        enabled: 'yes',
+        latitude: 'x',
+        longitude: Number.NaN,
+        label: 5,
+        unit: 'kelvin',
+      },
+    })
+    expect(bad.weather).toEqual({
+      enabled: false,
+      latitude: null,
+      longitude: null,
+      label: '',
+      unit: 'celsius',
+    })
+
+    expect(sanitizeSettings({ weather: 'nope' }).weather.enabled).toBe(false)
   })
 
   it('sanitizes the time settings', () => {

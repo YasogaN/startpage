@@ -140,6 +140,38 @@ kbd {
   color: var(--accent-text);
 }
 
+/* ---------- weather ---------- */
+
+.weather {
+  margin-top: -26px;
+  text-align: center;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.weather-now {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.weather-temp {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--fg);
+}
+
+.weather-desc {
+  font-weight: 600;
+  color: var(--accent-text);
+}
+
+.weather-status {
+  color: var(--muted);
+}
+
 /* ---------- search ---------- */
 
 .search {
@@ -221,44 +253,7 @@ kbd {
   border-color: var(--fg);
 }
 
-/* ---------- suggestions ---------- */
-
-.suggestions {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  max-height: 320px;
-  overflow-y: auto;
-  background: var(--bg);
-  border: var(--border-w) solid var(--accent);
-  border-top: none;
-}
-
-.suggestion {
-  display: block;
-  width: 100%;
-  padding: 10px 18px;
-  text-align: left;
-  font-family: var(--font-mono);
-  font-size: 14px;
-  color: var(--fg);
-  background: transparent;
-  border: none;
-  border-bottom: var(--border-w) solid var(--line);
-  cursor: pointer;
-}
-
-.suggestion:last-child {
-  border-bottom: none;
-}
-
-.suggestion:hover,
-.suggestion.active {
-  color: var(--accent-fg);
-  background: var(--accent);
-}
-
-/* ---------- links: vertical group tabs ---------- */
+/* ---------- links ---------- */
 
 .links {
   width: 100%;

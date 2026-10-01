@@ -5,6 +5,7 @@ import App from './App'
 import { DEFAULT_SETTINGS } from './config/defaults'
 import { clock } from './store/clock'
 import { settings, setSettings } from './store/settings'
+import { weather } from './store/weather'
 
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0))
 
@@ -34,7 +35,7 @@ function resetSettings() {
   setSettings('timeZone', defaults.timeZone)
   setSettings('syncTime', defaults.syncTime)
   setSettings('favicons', defaults.favicons)
-  setSettings('suggestions', defaults.suggestions)
+  setSettings('weather', structuredClone(defaults.weather))
   setSettings('groups', defaults.groups)
 }
 
@@ -269,6 +270,88 @@ describe('App', () => {
     )!
     ;(halfHour[0] as () => void)()
     expect(syncSpy).not.toHaveBeenCalled()
+    dispose()
+  })
+
+  it('does not refresh weather when disabled', () => {
+    const refresh = vi.spyOn(weather, 'refresh').mockResolvedValue(true)
+    const { dispose } = mount()
+    expect(refresh).not.toHaveBeenCalled()
+    dispose()
+  })
+
+  it('does not refresh weather from the timer when disabled', () => {
+    const setIntervalSpy = vi.spyOn(window, 'setInterval')
+    const refresh = vi.spyOn(weather, 'refresh').mockResolvedValue(true)
+
+    const { dispose } = mount()
+    const timer = setIntervalSpy.mock.calls.find(
+      ([, delay]) => delay === 15 * 60 * 1000,
+    )!
+    ;(timer[0] as () => void)()
+    expect(refresh).not.toHaveBeenCalled()
+    dispose()
+  })
+
+  it('waits for coordinates before refreshing weather', () => {
+    const refresh = vi.spyOn(weather, 'refresh').mockResolvedValue(true)
+
+    setSettings('weather', {
+      enabled: true,
+      latitude: null,
+      longitude: 2,
+      label: '',
+      unit: 'celsius',
+    })
+    const first = mount()
+    expect(refresh).not.toHaveBeenCalled()
+    first.dispose()
+
+    setSettings('weather', {
+      enabled: true,
+      latitude: 1,
+      longitude: null,
+      label: '',
+      unit: 'celsius',
+    })
+    const second = mount()
+    expect(refresh).not.toHaveBeenCalled()
+    second.dispose()
+  })
+
+  it('refreshes weather when enabled with coordinates', () => {
+    const refresh = vi.spyOn(weather, 'refresh').mockResolvedValue(true)
+    setSettings('weather', {
+      enabled: true,
+      latitude: 51.5,
+      longitude: -0.12,
+      label: 'LONDON',
+      unit: 'celsius',
+    })
+
+    const { dispose } = mount()
+    expect(refresh).toHaveBeenCalled()
+    dispose()
+  })
+
+  it('refreshes weather on the quarter-hour timer', () => {
+    const setIntervalSpy = vi.spyOn(window, 'setInterval')
+    const refresh = vi.spyOn(weather, 'refresh').mockResolvedValue(true)
+    setSettings('weather', {
+      enabled: true,
+      latitude: 1,
+      longitude: 2,
+      label: '',
+      unit: 'celsius',
+    })
+
+    const { dispose } = mount()
+    const timer = setIntervalSpy.mock.calls.find(
+      ([, delay]) => delay === 15 * 60 * 1000,
+    )!
+    const before = refresh.mock.calls.length
+    ;(timer[0] as () => void)()
+    expect(refresh.mock.calls.length).toBeGreaterThan(before)
     dispose()
   })
 

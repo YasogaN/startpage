@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { DEFAULT_SETTINGS } from '../config/defaults'
 import { clock } from '../store/clock'
 import { settings, setSettings } from '../store/settings'
+import { weather } from '../store/weather'
 import SettingsPanel from './Settings'
 
 const byText = (root: HTMLElement, text: string) =>
@@ -41,8 +42,12 @@ afterEach(() => {
   setSettings('timeZone', defaults.timeZone)
   setSettings('syncTime', defaults.syncTime)
   setSettings('favicons', defaults.favicons)
-  setSettings('suggestions', defaults.suggestions)
+  setSettings('weather', structuredClone(defaults.weather))
   setSettings('groups', defaults.groups)
+  Object.defineProperty(navigator, 'geolocation', {
+    configurable: true,
+    value: undefined,
+  })
 })
 
 describe('SettingsPanel', () => {
@@ -137,7 +142,7 @@ describe('SettingsPanel', () => {
     dispose()
   })
 
-  it('toggles favicons and suggestions', () => {
+  it('toggles favicons', () => {
     const { container, dispose } = mount()
     const boxes = container.querySelectorAll<HTMLInputElement>(
       'input[type="checkbox"]',
@@ -147,9 +152,66 @@ describe('SettingsPanel', () => {
     boxes[1].click()
     expect(settings.favicons).toBe(false)
 
-    boxes[2].click()
-    expect(settings.suggestions).toBe(true)
+    dispose()
+  })
 
+  it('configures weather', () => {
+    const { container, dispose } = mount()
+
+    const boxes = container.querySelectorAll<HTMLInputElement>(
+      'input[type="checkbox"]',
+    )
+    boxes[2].click()
+    expect(settings.weather.enabled).toBe(true)
+
+    const unit = container.querySelectorAll('select')[2] as HTMLSelectElement
+    setValue(unit as unknown as HTMLInputElement, 'fahrenheit', 'change')
+    expect(settings.weather.unit).toBe('fahrenheit')
+
+    const numbers = container.querySelectorAll<HTMLInputElement>(
+      'input[type="number"]',
+    )
+    setValue(numbers[0], '51.5', 'change')
+    setValue(numbers[1], '0.12', 'change')
+    expect(settings.weather.latitude).toBe(51.5)
+    expect(settings.weather.longitude).toBe(0.12)
+
+    // Invalid or empty input clears the coordinate.
+    setValue(numbers[0], 'abc', 'change')
+    expect(settings.weather.latitude).toBeNull()
+    setValue(numbers[1], '', 'change')
+    expect(settings.weather.longitude).toBeNull()
+
+    const place = container.querySelector(
+      'input[placeholder="Optional"]',
+    ) as HTMLInputElement
+    setValue(place, 'LONDON')
+    expect(settings.weather.label).toBe('LONDON')
+
+    dispose()
+  })
+
+  it('requests the current location', () => {
+    const locate = vi.spyOn(weather, 'useCurrentLocation').mockResolvedValue(true)
+    const { container, dispose } = mount()
+
+    byText(container, 'USE MY LOCATION')!.click()
+    expect(locate).toHaveBeenCalled()
+
+    dispose()
+  })
+
+  it('shows a locating status while the prompt is pending', async () => {
+    Object.defineProperty(navigator, 'geolocation', {
+      configurable: true,
+      value: { getCurrentPosition: () => undefined },
+    })
+
+    const { container, dispose } = mount()
+    byText(container, 'USE MY LOCATION')!.click()
+    await Promise.resolve()
+
+    expect(container.textContent).toContain('LOCATING…')
     dispose()
   })
 

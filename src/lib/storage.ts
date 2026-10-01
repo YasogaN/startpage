@@ -51,8 +51,26 @@ export function sanitizeSettings(raw: unknown): Settings {
   if (typeof raw.favicons === 'boolean') {
     base.favicons = raw.favicons
   }
-  if (typeof raw.suggestions === 'boolean') {
-    base.suggestions = raw.suggestions
+  if (isRecord(raw.weather)) {
+    const weather = raw.weather
+    if (typeof weather.enabled === 'boolean') {
+      base.weather.enabled = weather.enabled
+    }
+    if (typeof weather.latitude === 'number' && Number.isFinite(weather.latitude)) {
+      base.weather.latitude = weather.latitude
+    }
+    if (
+      typeof weather.longitude === 'number' &&
+      Number.isFinite(weather.longitude)
+    ) {
+      base.weather.longitude = weather.longitude
+    }
+    if (typeof weather.label === 'string') {
+      base.weather.label = weather.label
+    }
+    if (weather.unit === 'celsius' || weather.unit === 'fahrenheit') {
+      base.weather.unit = weather.unit
+    }
   }
   if (raw.timeZone === '') {
     base.timeZone = ''

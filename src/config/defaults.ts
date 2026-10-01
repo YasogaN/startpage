@@ -28,7 +28,13 @@ export const DEFAULT_SETTINGS: Settings = {
   timeZone: '',
   syncTime: true,
   favicons: true,
-  suggestions: false,
+  weather: {
+    enabled: false,
+    latitude: null,
+    longitude: null,
+    label: '',
+    unit: 'celsius',
+  },
   groups: [
     {
       title: 'Daily',

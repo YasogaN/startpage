@@ -11,6 +11,17 @@ export interface Engine {
   url: string
 }
 
+export type TemperatureUnit = 'celsius' | 'fahrenheit'
+
+export interface WeatherSettings {
+  enabled: boolean
+  latitude: number | null
+  longitude: number | null
+  /** Optional place name shown next to the temperature. */
+  label: string
+  unit: TemperatureUnit
+}
+
 export interface LinkItem {
   label: string
   url: string
@@ -32,7 +43,6 @@ export interface Settings {
   syncTime: boolean
   /** Show site favicons on link tiles instead of monograms. */
   favicons: boolean
-  /** Show on-device suggestions (recent searches + saved links). */
-  suggestions: boolean
+  weather: WeatherSettings
   groups: LinkGroup[]
 }
