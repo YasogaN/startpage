@@ -2,6 +2,8 @@ import type { TemperatureUnit } from '../types'
 
 export interface Weather {
   temperature: number
+  apparentTemperature: number
+  windSpeed: number
   unit: TemperatureUnit
   code: number
   description: string
@@ -9,6 +11,14 @@ export interface Weather {
 }
 
 const API = 'https://api.open-meteo.com/v1/forecast'
+const GEO_API = 'https://api.bigdatacloud.net/data/reverse-geocode-client'
+const CURRENT_FIELDS = [
+  'temperature_2m',
+  'apparent_temperature',
+  'is_day',
+  'weather_code',
+  'wind_speed_10m',
+].join(',')
 
 /** WMO weather interpretation codes. */
 const DESCRIPTIONS: Record<number, string> = {
@@ -50,15 +60,35 @@ export function weatherUrl(
   const params = new URLSearchParams({
     latitude: String(latitude),
     longitude: String(longitude),
-    current: 'temperature_2m,is_day,weather_code',
+    current: CURRENT_FIELDS,
     timezone: 'auto',
   })
   if (unit === 'fahrenheit') params.set('temperature_unit', 'fahrenheit')
   return `${API}?${params.toString()}`
 }
 
+export function reverseGeocodeUrl(latitude: number, longitude: number): string {
+  const params = new URLSearchParams({
+    latitude: String(latitude),
+    longitude: String(longitude),
+    localityLanguage: 'en',
+  })
+  return `${GEO_API}?${params.toString()}`
+}
+
 export function describeWeatherCode(code: number): string {
   return DESCRIPTIONS[code] ?? 'UNKNOWN'
+}
+
+/** Small day/night-aware glyph for the current conditions. */
+export function weatherGlyph(code: number, isDay: boolean): string {
+  if (code === 0 || code === 1) return isDay ? '☀' : '☾'
+  if (code === 2) return isDay ? '⛅' : '☁'
+  if (code === 3 || code === 45 || code === 48) return '☁'
+  if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return '☔'
+  if ((code >= 71 && code <= 77) || code === 85 || code === 86) return '❄'
+  if (code >= 95) return '⚡'
+  return '•'
 }
 
 export function parseWeather(
@@ -76,11 +106,30 @@ export function parseWeather(
 
   return {
     temperature: Math.round(temperature),
+    apparentTemperature:
+      typeof values.apparent_temperature === 'number'
+        ? Math.round(values.apparent_temperature)
+        : Math.round(temperature),
+    windSpeed:
+      typeof values.wind_speed_10m === 'number'
+        ? Math.round(values.wind_speed_10m)
+        : 0,
     unit,
     code,
     description: describeWeatherCode(code),
     isDay: values.is_day === 1,
   }
+}
+
+/** Best-effort place name from a reverse-geocode payload. */
+export function parsePlaceName(payload: unknown): string {
+  if (typeof payload !== 'object' || payload === null) return ''
+  const values = payload as Record<string, unknown>
+  for (const key of ['city', 'locality', 'principalSubdivision', 'countryName']) {
+    const value = values[key]
+    if (typeof value === 'string' && value) return value
+  }
+  return ''
 }
 
 /** Fetch current weather; resolves to `null` on any failure. */
@@ -100,5 +149,24 @@ export async function fetchWeather(
     return parseWeather(await response.json(), unit)
   } catch {
     return null
+  }
+}
+
+/** Resolve a place name for coordinates; resolves to `''` on any failure. */
+export async function fetchPlaceName(
+  latitude: number,
+  longitude: number,
+  fetchImpl: typeof fetch | undefined = globalThis.fetch,
+  signal?: AbortSignal,
+): Promise<string> {
+  if (!fetchImpl) return ''
+  try {
+    const response = await fetchImpl(reverseGeocodeUrl(latitude, longitude), {
+      signal,
+    })
+    if (!response.ok) return ''
+    return parsePlaceName(await response.json())
+  } catch {
+    return ''
   }
 }

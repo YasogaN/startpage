@@ -2,7 +2,7 @@
   X-Content-Type-Options: nosniff
   Referrer-Policy: no-referrer
   X-Frame-Options: DENY
-  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data: https://icons.duckduckgo.com; connect-src 'self' https://one.one.one.one https://timeapi.io https://api.open-meteo.com; manifest-src 'self'; worker-src 'self'; form-action 'self'; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data: https://icons.duckduckgo.com; connect-src 'self' https://one.one.one.one https://timeapi.io https://api.open-meteo.com https://api.bigdatacloud.net; manifest-src 'self'; worker-src 'self'; form-action 'self'; frame-ancestors 'none'
 
 /theme-boot.js
   Cache-Control: no-cache

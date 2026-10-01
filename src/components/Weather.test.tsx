@@ -57,8 +57,12 @@ describe('Weather', () => {
     await weather.refresh()
 
     const { container, dispose } = mount()
+    expect(container.querySelector('.weather-glyph')?.textContent).toBe('☀')
     expect(container.querySelector('.weather-temp')?.textContent).toBe('7°C')
     expect(container.querySelector('.weather-desc')?.textContent).toBe('CLEAR')
+    expect(container.querySelector('.weather-extra')?.textContent).toContain(
+      'WIND 0 KM/H',
+    )
     expect(container.querySelector('.weather-place')?.textContent).toBe('LONDON')
     dispose()
   })

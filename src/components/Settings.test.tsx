@@ -42,6 +42,8 @@ afterEach(() => {
   setSettings('timeZone', defaults.timeZone)
   setSettings('syncTime', defaults.syncTime)
   setSettings('favicons', defaults.favicons)
+  setSettings('clock24', defaults.clock24)
+  setSettings('showSeconds', defaults.showSeconds)
   setSettings('weather', structuredClone(defaults.weather))
   setSettings('groups', defaults.groups)
   Object.defineProperty(navigator, 'geolocation', {
@@ -102,7 +104,12 @@ describe('SettingsPanel', () => {
 
   it('changes engine and theme', () => {
     const { container, dispose } = mount()
-    const [engine, theme] = container.querySelectorAll('select')
+    const engine = container.querySelector(
+      'select[aria-label="Default engine"]',
+    ) as HTMLSelectElement
+    const theme = container.querySelector(
+      'select[aria-label="Theme"]',
+    ) as HTMLSelectElement
 
     setValue(engine as unknown as HTMLInputElement, 'ddg-noai', 'change')
     expect(settings.engine).toBe('ddg-noai')
@@ -128,10 +135,9 @@ describe('SettingsPanel', () => {
     setValue(zone, '', 'change')
     expect(settings.timeZone).toBe('')
 
-    const checkbox = container.querySelector(
-      'input[type="checkbox"]',
-    ) as HTMLInputElement
-    checkbox.click()
+    ;(
+      container.querySelector('input[aria-label="Sync clock"]') as HTMLInputElement
+    ).click()
     expect(settings.syncTime).toBe(false)
 
     // The timezone datalist is populated.
@@ -144,13 +150,29 @@ describe('SettingsPanel', () => {
 
   it('toggles favicons', () => {
     const { container, dispose } = mount()
-    const boxes = container.querySelectorAll<HTMLInputElement>(
-      'input[type="checkbox"]',
-    )
-    expect(boxes).toHaveLength(3)
+    expect(
+      container.querySelectorAll('input[type="checkbox"]'),
+    ).toHaveLength(5)
 
-    boxes[1].click()
+    ;(
+      container.querySelector('input[aria-label="Show favicons"]') as HTMLInputElement
+    ).click()
     expect(settings.favicons).toBe(false)
+
+    dispose()
+  })
+
+  it('toggles the clock format', () => {
+    const { container, dispose } = mount()
+    ;(
+      container.querySelector('input[aria-label="24-hour clock"]') as HTMLInputElement
+    ).click()
+    expect(settings.clock24).toBe(false)
+
+    ;(
+      container.querySelector('input[aria-label="Show seconds"]') as HTMLInputElement
+    ).click()
+    expect(settings.showSeconds).toBe(false)
 
     dispose()
   })
@@ -158,36 +180,76 @@ describe('SettingsPanel', () => {
   it('configures weather', () => {
     const { container, dispose } = mount()
 
-    const boxes = container.querySelectorAll<HTMLInputElement>(
-      'input[type="checkbox"]',
-    )
-    boxes[2].click()
+    ;(
+      container.querySelector('input[aria-label="Show weather"]') as HTMLInputElement
+    ).click()
     expect(settings.weather.enabled).toBe(true)
 
-    const unit = container.querySelectorAll('select')[2] as HTMLSelectElement
+    const unit = container.querySelector(
+      'select[aria-label="Weather units"]',
+    ) as HTMLSelectElement
     setValue(unit as unknown as HTMLInputElement, 'fahrenheit', 'change')
     expect(settings.weather.unit).toBe('fahrenheit')
 
-    const numbers = container.querySelectorAll<HTMLInputElement>(
-      'input[type="number"]',
-    )
-    setValue(numbers[0], '51.5', 'change')
-    setValue(numbers[1], '0.12', 'change')
+    const latitude = container.querySelector(
+      'input[aria-label="Latitude"]',
+    ) as HTMLInputElement
+    const longitude = container.querySelector(
+      'input[aria-label="Longitude"]',
+    ) as HTMLInputElement
+    setValue(latitude, '51.5', 'change')
+    setValue(longitude, '0.12', 'change')
     expect(settings.weather.latitude).toBe(51.5)
     expect(settings.weather.longitude).toBe(0.12)
 
     // Invalid or empty input clears the coordinate.
-    setValue(numbers[0], 'abc', 'change')
+    setValue(latitude, 'abc', 'change')
     expect(settings.weather.latitude).toBeNull()
-    setValue(numbers[1], '', 'change')
+    setValue(longitude, '', 'change')
     expect(settings.weather.longitude).toBeNull()
 
     const place = container.querySelector(
-      'input[placeholder="Optional"]',
+      'input[aria-label="Place name"]',
     ) as HTMLInputElement
     setValue(place, 'LONDON')
     expect(settings.weather.label).toBe('LONDON')
 
+    dispose()
+  })
+
+  it('clears the caches', async () => {
+    const deleteMock = vi.fn(async () => true)
+    vi.stubGlobal('caches', { delete: deleteMock })
+    const weatherClear = vi.spyOn(weather, 'clear')
+    const clockClear = vi.spyOn(clock, 'clear')
+
+    const { container, dispose } = mount()
+
+    byText(container, 'CLEAR ICONS')!.click()
+    await vi.waitFor(() =>
+      expect(container.textContent).toContain('Icon cache cleared'),
+    )
+    expect(deleteMock).toHaveBeenCalledWith('favicons')
+
+    byText(container, 'CLEAR WEATHER')!.click()
+    expect(weatherClear).toHaveBeenCalled()
+    expect(container.textContent).toContain('Weather cache cleared')
+
+    byText(container, 'CLEAR CLOCK')!.click()
+    expect(clockClear).toHaveBeenCalled()
+    expect(container.textContent).toContain('Clock offset cleared')
+
+    dispose()
+  })
+
+  it('reports when there is no icon cache', async () => {
+    vi.stubGlobal('caches', undefined)
+    const { container, dispose } = mount()
+
+    byText(container, 'CLEAR ICONS')!.click()
+    await vi.waitFor(() =>
+      expect(container.textContent).toContain('No icon cache to clear'),
+    )
     dispose()
   })
 

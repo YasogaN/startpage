@@ -6,7 +6,13 @@ import type { WeatherStatus } from './weather'
 const CACHE_KEY = 'startpage.weather.v1'
 
 const payload = () => ({
-  current: { temperature_2m: 7, weather_code: 0, is_day: 1 },
+  current: {
+    temperature_2m: 7,
+    apparent_temperature: 5,
+    wind_speed_10m: 9,
+    weather_code: 0,
+    is_day: 1,
+  },
 })
 const ok = (body: unknown) =>
   ({ ok: true, json: async () => body }) as unknown as Response
@@ -48,6 +54,8 @@ describe('cache hydration', () => {
     const { weather } = await load(
       JSON.stringify({
         temperature: 3,
+        apparentTemperature: 1,
+        windSpeed: 12,
         unit: 'fahrenheit',
         code: 1,
         description: 'MAINLY CLEAR',
@@ -56,6 +64,8 @@ describe('cache hydration', () => {
     )
     expect(weather.data()).toEqual({
       temperature: 3,
+      apparentTemperature: 1,
+      windSpeed: 12,
       unit: 'fahrenheit',
       code: 1,
       description: 'MAINLY CLEAR',
@@ -67,6 +77,8 @@ describe('cache hydration', () => {
     const { weather } = await load(JSON.stringify({ temperature: 1, code: 2 }))
     expect(weather.data()).toEqual({
       temperature: 1,
+      apparentTemperature: 1,
+      windSpeed: 0,
       unit: 'celsius',
       code: 2,
       description: 'UNKNOWN',
@@ -98,6 +110,7 @@ describe('refresh', () => {
     expect(await weather.refresh()).toBe(true)
     expect(weather.status()).toBe('ready')
     expect(weather.data()?.temperature).toBe(7)
+    expect(weather.data()?.apparentTemperature).toBe(5)
     expect(localStorage.getItem(CACHE_KEY)).toContain('"temperature":7')
   })
 
@@ -131,6 +144,29 @@ describe('refresh', () => {
     expect(await weather.refresh()).toBe(true)
     expect(fetchMock).toHaveBeenCalled()
   })
+
+  it('clears the cached reading', async () => {
+    const { weather, setSettings } = await load()
+    setSettings('weather', 'latitude', 1)
+    setSettings('weather', 'longitude', 2)
+    weather.configure({
+      fetchImpl: (async () => ok(payload())) as unknown as typeof fetch,
+    })
+    await weather.refresh()
+
+    weather.clear()
+    expect(weather.data()).toBeNull()
+    expect(weather.status()).toBe('idle')
+    expect(localStorage.getItem(CACHE_KEY)).toBeNull()
+  })
+
+  it('tolerates storage failures when clearing', async () => {
+    const { weather } = await load()
+    vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {
+      throw new Error('blocked')
+    })
+    expect(() => weather.clear()).not.toThrow()
+  })
 })
 
 describe('useCurrentLocation', () => {
@@ -140,11 +176,14 @@ describe('useCurrentLocation', () => {
     expect(weather.status()).toBe('unsupported')
   })
 
-  it('stores the coordinates and refreshes', async () => {
+  it('stores the coordinates, refreshes and fills the place name', async () => {
     const { weather, settings } = await load()
-    weather.configure({
-      fetchImpl: (async () => ok(payload())) as unknown as typeof fetch,
-    })
+    const fetchImpl = vi.fn(async (url: string) =>
+      String(url).includes('reverse-geocode')
+        ? ok({ city: 'London' })
+        : ok(payload()),
+    )
+    weather.configure({ fetchImpl: fetchImpl as unknown as typeof fetch })
     stubGeolocation({
       getCurrentPosition: (success: (position: unknown) => void) =>
         success({ coords: { latitude: 10, longitude: 20 } }),
@@ -153,7 +192,40 @@ describe('useCurrentLocation', () => {
     expect(await weather.useCurrentLocation()).toBe(true)
     expect(settings.weather.latitude).toBe(10)
     expect(settings.weather.longitude).toBe(20)
+    expect(settings.weather.label).toBe('London')
     expect(weather.data()?.temperature).toBe(7)
+  })
+
+  it('keeps an existing place name', async () => {
+    const { weather, settings, setSettings } = await load()
+    setSettings('weather', 'label', 'Custom')
+    const fetchImpl = vi.fn(async (_url: string) => ok(payload()))
+    weather.configure({ fetchImpl: fetchImpl as unknown as typeof fetch })
+    stubGeolocation({
+      getCurrentPosition: (success: (position: unknown) => void) =>
+        success({ coords: { latitude: 10, longitude: 20 } }),
+    })
+
+    await weather.useCurrentLocation()
+    expect(settings.weather.label).toBe('Custom')
+    expect(
+      fetchImpl.mock.calls.some(([url]) => String(url).includes('reverse-geocode')),
+    ).toBe(false)
+  })
+
+  it('leaves the label empty when nothing resolves', async () => {
+    const { weather, settings } = await load()
+    const fetchImpl = vi.fn(async (url: string) =>
+      String(url).includes('reverse-geocode') ? ok({}) : ok(payload()),
+    )
+    weather.configure({ fetchImpl: fetchImpl as unknown as typeof fetch })
+    stubGeolocation({
+      getCurrentPosition: (success: (position: unknown) => void) =>
+        success({ coords: { latitude: 10, longitude: 20 } }),
+    })
+
+    await weather.useCurrentLocation()
+    expect(settings.weather.label).toBe('')
   })
 
   it('reports a denied permission', async () => {

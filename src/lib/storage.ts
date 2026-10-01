@@ -51,6 +51,12 @@ export function sanitizeSettings(raw: unknown): Settings {
   if (typeof raw.favicons === 'boolean') {
     base.favicons = raw.favicons
   }
+  if (typeof raw.clock24 === 'boolean') {
+    base.clock24 = raw.clock24
+  }
+  if (typeof raw.showSeconds === 'boolean') {
+    base.showSeconds = raw.showSeconds
+  }
   if (isRecord(raw.weather)) {
     const weather = raw.weather
     if (typeof weather.enabled === 'boolean') {

@@ -55,7 +55,17 @@ kbd {
 
 .bar-actions {
   display: flex;
+  align-items: center;
   gap: 8px;
+}
+
+.offline-badge {
+  padding: 5px 8px;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--accent-fg);
+  background: var(--accent);
+  border: var(--border-w) solid var(--accent);
 }
 
 /* ---------- buttons ---------- */
@@ -168,6 +178,11 @@ kbd {
   color: var(--accent-text);
 }
 
+.weather-glyph {
+  font-size: 16px;
+}
+
+.weather-extra,
 .weather-status {
   color: var(--muted);
 }
@@ -198,6 +213,9 @@ kbd {
 }
 
 .engine.active {
+  /* Collapsed borders overlap; lift the active tab so its accent border wins. */
+  position: relative;
+  z-index: 1;
   color: var(--accent-fg);
   background: var(--accent);
   border-color: var(--accent);
@@ -205,7 +223,7 @@ kbd {
 
 .engine:focus-visible {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   outline: 3px solid var(--accent-text);
   outline-offset: 2px;
 }
@@ -223,7 +241,6 @@ kbd {
   color: var(--fg);
   background: var(--bg);
   border: var(--border-w) solid var(--line);
-  border-right: none;
 }
 
 .search-input::placeholder {
@@ -231,11 +248,17 @@ kbd {
 }
 
 .search-input:focus {
+  /* Collapsed border with GO; lift the input so the accent edge wins. */
+  position: relative;
+  z-index: 1;
   border-color: var(--accent);
   outline: none;
 }
 
 .search-go {
+  position: relative;
+  /* Overlap the shared edge so it stays a single border. */
+  margin-left: calc(-1 * var(--border-w));
   padding: 0 24px;
   font-family: var(--font-mono);
   font-size: 16px;
@@ -532,6 +555,104 @@ kbd {
 .noscript {
   padding: 24px;
   color: var(--fg);
+}
+
+/* ---------- command palette ---------- */
+
+.palette-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 12vh 24px 24px;
+  background: rgba(0, 0, 0, 0.78);
+}
+
+:root[data-theme='light'] .palette-overlay {
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.palette {
+  width: 100%;
+  max-width: 620px;
+  color: var(--fg);
+  background: var(--bg);
+  border: var(--border-w) solid var(--line);
+  box-shadow: 8px 8px 0 var(--accent);
+}
+
+.palette-input {
+  width: 100%;
+  padding: 16px 18px;
+  font-family: var(--font-mono);
+  font-size: 16px;
+  color: var(--fg);
+  background: var(--bg);
+  border: none;
+  border-bottom: var(--rule-w) solid var(--accent);
+}
+
+.palette-input:focus {
+  outline: none;
+}
+
+.palette-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.palette-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 18px;
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--fg);
+  background: transparent;
+  border: none;
+  border-bottom: var(--border-w) solid var(--line);
+  cursor: pointer;
+}
+
+.palette-item:last-child {
+  border-bottom: none;
+}
+
+.palette-item:hover,
+.palette-item.active {
+  color: var(--accent-fg);
+  background: var(--accent);
+}
+
+.palette-label {
+  font-weight: 600;
+}
+
+.palette-host {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.palette-item:hover .palette-host,
+.palette-item.active .palette-host {
+  color: var(--accent-fg);
+}
+
+.palette-empty {
+  margin: 0;
+  padding: 16px 18px;
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--muted);
 }
 
 /* ---------- update banner ---------- */

@@ -56,6 +56,23 @@ describe('SearchBar', () => {
     dispose()
   })
 
+  it('clears the query with Escape', () => {
+    const { container, dispose } = mount()
+    const input = container.querySelector('.search-input') as HTMLInputElement
+
+    input.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }),
+    )
+
+    type(input, 'hello')
+    input.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }),
+    )
+    expect(input.value).toBe('')
+
+    dispose()
+  })
+
   it('switches engine and searches through it', () => {
     const assign = vi.fn()
     vi.stubGlobal('location', { assign })

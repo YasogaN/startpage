@@ -20,6 +20,7 @@ describe('Content-Security-Policy', () => {
     expect(headers).toContain('https://one.one.one.one')
     expect(headers).toContain('https://timeapi.io')
     expect(headers).toContain('https://api.open-meteo.com')
+    expect(headers).toContain('https://api.bigdatacloud.net')
     expect(headers).toContain("frame-ancestors 'none'")
   })
 })

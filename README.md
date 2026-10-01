@@ -9,8 +9,11 @@ bundle, and installable/offline via a service worker.
 - **Links:** one column per group. Favicons come from DuckDuckGo's icon service
   and sit on a neutral chip so they read in both themes (with a monogram
   fallback); browser bookmark HTML exports can be imported.
+- **Keyboard-first:** `/` focuses search; `Ctrl`/`Cmd`+`K` opens a local command
+  palette that fuzzy-searches your links.
 - **Weather:** optional current conditions via Open-Meteo, using your browser
-  location or manual coordinates.
+  location or manual coordinates; includes feels-like, wind and a day/night
+  glyph.
 - **Settings:** edit links, import/export JSON, import bookmarks, engine, theme,
   time and weather; reset.
 - **Theme:** dark, light, or follow the system (`prefers-color-scheme`).
@@ -18,7 +21,7 @@ bundle, and installable/offline via a service worker.
   The only outbound requests are optional clock sync, link favicons, and —
   only if you enable it — weather.
 - **Offline:** the entire app shell is precached by Workbox; new versions prompt
-  before reloading.
+  before reloading, and an `OFFLINE` badge appears when the network drops.
 - **Security:** strict Content-Security-Policy via Cloudflare `_headers`.
 
 ## Development
@@ -58,7 +61,8 @@ Weather is **off by default**. Turn it on in **SETTINGS → WEATHER**, then eith
 press **USE MY LOCATION** (browser geolocation prompt) or enter a latitude and
 longitude manually. Data comes from [Open-Meteo](https://open-meteo.com) — no
 API key, CORS-open — and the last reading is cached so something still shows
-offline. Coordinates are stored only in your own `localStorage`.
+offline. If no place name is set, coordinates are reverse-geocoded once via
+BigDataCloud. Coordinates are stored only in your own `localStorage`.
 
 There is intentionally **no search autocomplete**: DuckDuckGo's suggestions send
 no CORS headers and no JSONP, so they cannot be read from the browser without a
@@ -73,7 +77,8 @@ proxy, and adding a proxy was not wanted.
 | Node version | 22+ |
 
 `public/_headers` ships with the build and sets a strict Content-Security-Policy
-(`connect-src` allows only the clock, favicon and Open-Meteo hosts), immutable
+(`connect-src` allows only the clock, favicon, Open-Meteo and BigDataCloud
+hosts), immutable
 caching for `/assets/*`, and `no-cache` for `/sw.js`, `/index.html` and the
 manifest, so service-worker updates are picked up immediately.
 
@@ -82,10 +87,11 @@ manifest, so service-worker updates are picked up immediately.
 | Key | Action |
 | --- | --- |
 | `/` | focus search |
+| `Ctrl`/`Cmd`+`K` | command palette (jump to a link) |
 | `Enter` | submit search |
 | `Alt`+`1` / `Alt`+`2` | DDG / DDG No-AI |
 | `t` | cycle theme (dark → light → system) |
-| `Esc` | blur / close settings |
+| `Esc` | clear search / close palette / close settings / blur |
 
 ## How offline caching works
 

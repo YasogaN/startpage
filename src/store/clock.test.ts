@@ -135,6 +135,27 @@ describe('sync', () => {
     expect(Math.abs(clock.now() - 5_000_000)).toBeLessThan(2000)
   })
 
+  it('clears the cached offset', async () => {
+    const clock = await load(
+      JSON.stringify({ offsetMs: 500, source: 'cloudflare', syncedAt: 5 }),
+    )
+    expect(clock.offsetMs()).toBe(500)
+
+    clock.clear()
+    expect(clock.offsetMs()).toBe(0)
+    expect(clock.source()).toBe('local')
+    expect(clock.syncedAt()).toBe(0)
+    expect(localStorage.getItem(CACHE_KEY)).toBeNull()
+  })
+
+  it('tolerates storage failures when clearing', async () => {
+    const clock = await load()
+    vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {
+      throw new Error('blocked')
+    })
+    expect(() => clock.clear()).not.toThrow()
+  })
+
   it('survives cache write failures', async () => {
     const clock = await load()
     clock.configure({ now: () => 0, fetchImpl: async () => response('ts=1000.000') })

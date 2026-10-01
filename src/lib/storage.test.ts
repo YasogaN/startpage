@@ -45,6 +45,10 @@ describe('sanitizeSettings', () => {
   it('sanitizes the display toggles', () => {
     expect(sanitizeSettings({ favicons: false }).favicons).toBe(false)
     expect(sanitizeSettings({ favicons: 'nope' }).favicons).toBe(true)
+    expect(sanitizeSettings({ clock24: false }).clock24).toBe(false)
+    expect(sanitizeSettings({ clock24: 1 }).clock24).toBe(true)
+    expect(sanitizeSettings({ showSeconds: false }).showSeconds).toBe(false)
+    expect(sanitizeSettings({ showSeconds: 'x' }).showSeconds).toBe(true)
   })
 
   it('sanitizes weather settings', () => {

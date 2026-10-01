@@ -53,6 +53,13 @@ export default function SearchBar(props: Props) {
           spellcheck={false}
           aria-label="Search"
           onInput={(event) => setQuery(event.currentTarget.value)}
+          onKeyDown={(event) => {
+            // First Escape clears the field; a second one falls through to blur.
+            if (event.key === 'Escape' && query() !== '') {
+              event.stopPropagation()
+              setQuery('')
+            }
+          }}
         />
         <button class="search-go" type="submit">
           GO

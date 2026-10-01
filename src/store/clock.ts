@@ -78,10 +78,22 @@ export const clock = createRoot(() => {
     return false
   }
 
+  /** Drop the cached offset and fall back to system time. */
+  const clear = () => {
+    setOffsetMs(0)
+    setSource('local')
+    setSyncedAt(0)
+    try {
+      localStorage.removeItem(CACHE_KEY)
+    } catch {
+      // Storage unavailable — nothing to clear.
+    }
+  }
+
   /** Test seam: inject a fetch implementation and clock. */
   const configure = (next: ClockOptions) => {
     options = next
   }
 
-  return { offsetMs, source, syncedAt, syncing, now, sync, configure }
+  return { offsetMs, source, syncedAt, syncing, now, sync, configure, clear }
 })

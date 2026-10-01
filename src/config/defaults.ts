@@ -28,6 +28,8 @@ export const DEFAULT_SETTINGS: Settings = {
   timeZone: '',
   syncTime: true,
   favicons: true,
+  clock24: true,
+  showSeconds: true,
   weather: {
     enabled: false,
     latitude: null,

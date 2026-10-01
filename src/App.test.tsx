@@ -35,6 +35,8 @@ function resetSettings() {
   setSettings('timeZone', defaults.timeZone)
   setSettings('syncTime', defaults.syncTime)
   setSettings('favicons', defaults.favicons)
+  setSettings('clock24', defaults.clock24)
+  setSettings('showSeconds', defaults.showSeconds)
   setSettings('weather', structuredClone(defaults.weather))
   setSettings('groups', defaults.groups)
 }
@@ -58,6 +60,10 @@ afterEach(() => {
   vi.useRealTimers()
   vi.restoreAllMocks()
   vi.unstubAllGlobals()
+  Object.defineProperty(navigator, 'onLine', {
+    configurable: true,
+    value: true,
+  })
   resetSettings()
 })
 
@@ -123,6 +129,73 @@ describe('App', () => {
       .dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
 
     expect(assign).toHaveBeenCalledWith('https://duckduckgo.com/?q=solid')
+    dispose()
+  })
+
+  it('focuses the search input on load', () => {
+    const { container, dispose } = mount()
+    expect(document.activeElement).toBe(
+      container.querySelector('.search-input'),
+    )
+    dispose()
+  })
+
+  it('opens and closes the command palette', async () => {
+    const { container, dispose } = mount()
+
+    press(document.body, 'k', { metaKey: true })
+    await tick()
+    expect(container.querySelector('.palette')).not.toBeNull()
+
+    // '/' is ignored while the palette is open.
+    const paletteInput = container.querySelector('.palette-input') as HTMLElement
+    press(document.body, '/')
+    expect(document.activeElement).toBe(paletteInput)
+
+    // App-level Escape closes the palette.
+    press(document.body, 'Escape')
+    await tick()
+    expect(container.querySelector('.palette')).toBeNull()
+
+    // Reopen, then close through the palette's own onClose (overlay click).
+    press(document.body, 'k', { ctrlKey: true })
+    await tick()
+    expect(container.querySelector('.palette')).not.toBeNull()
+    ;(container.querySelector('.palette-overlay') as HTMLElement).click()
+    await tick()
+    expect(container.querySelector('.palette')).toBeNull()
+
+    // Ctrl+K toggles it open and closed.
+    press(document.body, 'k', { ctrlKey: true })
+    await tick()
+    expect(container.querySelector('.palette')).not.toBeNull()
+    press(document.body, 'k', { ctrlKey: true })
+    await tick()
+    expect(container.querySelector('.palette')).toBeNull()
+
+    dispose()
+  })
+
+  it('shows an offline badge when the browser goes offline', async () => {
+    Object.defineProperty(navigator, 'onLine', {
+      configurable: true,
+      value: false,
+    })
+    const { container, dispose } = mount()
+    expect(container.querySelector('.offline-badge')).not.toBeNull()
+
+    Object.defineProperty(navigator, 'onLine', {
+      configurable: true,
+      value: true,
+    })
+    window.dispatchEvent(new Event('online'))
+    await tick()
+    expect(container.querySelector('.offline-badge')).toBeNull()
+
+    window.dispatchEvent(new Event('offline'))
+    await tick()
+    expect(container.querySelector('.offline-badge')).not.toBeNull()
+
     dispose()
   })
 

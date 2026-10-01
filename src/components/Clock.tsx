@@ -27,8 +27,8 @@ export default function Clock() {
         timeZone: zone,
         hour: '2-digit',
         minute: '2-digit',
-        second: '2-digit',
-        hourCycle: 'h23',
+        ...(settings.showSeconds ? { second: '2-digit' } : {}),
+        hour12: !settings.clock24,
       }),
       date: new Intl.DateTimeFormat('en-GB', {
         timeZone: zone,

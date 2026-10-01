@@ -1,5 +1,13 @@
-import { createEffect, createSignal, onCleanup, onMount, untrack } from 'solid-js'
+import {
+  Show,
+  createEffect,
+  createSignal,
+  onCleanup,
+  onMount,
+  untrack,
+} from 'solid-js'
 import Clock from './components/Clock'
+import CommandPalette from './components/CommandPalette'
 import QuickLinks from './components/QuickLinks'
 import SearchBar from './components/SearchBar'
 import SettingsPanel from './components/Settings'
@@ -19,6 +27,8 @@ import { weather } from './store/weather'
 export default function App() {
   let inputEl: HTMLInputElement | undefined
   const [settingsOpen, setSettingsOpen] = createSignal(false)
+  const [paletteOpen, setPaletteOpen] = createSignal(false)
+  const [online, setOnline] = createSignal(navigator.onLine)
   const [systemDark, setSystemDark] = createSignal(systemPrefersDark())
 
   // Resolve the stored mode ("system" included) to the effective theme.
@@ -47,10 +57,22 @@ export default function App() {
   })
 
   onMount(() => {
+    // Type-to-search straight away.
+    inputEl?.focus()
+
     const unsubscribe = subscribeSystemTheme(ambientMatchMedia(), (dark) =>
       setSystemDark(dark),
     )
     onCleanup(unsubscribe)
+
+    const goOnline = () => setOnline(true)
+    const goOffline = () => setOnline(false)
+    window.addEventListener('online', goOnline)
+    window.addEventListener('offline', goOffline)
+    onCleanup(() => {
+      window.removeEventListener('online', goOnline)
+      window.removeEventListener('offline', goOffline)
+    })
 
     const syncId = window.setInterval(
       () => {
@@ -76,14 +98,22 @@ export default function App() {
           target.tagName === 'TEXTAREA' ||
           target.isContentEditable)
 
-      if (event.key === '/' && !typing && !settingsOpen()) {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault()
+        setPaletteOpen((current) => !current)
+        return
+      }
+
+      if (event.key === '/' && !typing && !settingsOpen() && !paletteOpen()) {
         event.preventDefault()
         inputEl?.focus()
         return
       }
 
       if (event.key === 'Escape') {
-        if (settingsOpen()) {
+        if (paletteOpen()) {
+          setPaletteOpen(false)
+        } else if (settingsOpen()) {
           setSettingsOpen(false)
         } else {
           target?.blur()
@@ -126,6 +156,9 @@ export default function App() {
           START<span class="dot">.</span>
         </span>
         <div class="bar-actions">
+          <Show when={!online()}>
+            <span class="offline-badge">OFFLINE</span>
+          </Show>
           <ThemeToggle />
           <button
             type="button"
@@ -166,6 +199,11 @@ export default function App() {
       <SettingsPanel
         open={settingsOpen()}
         onClose={() => setSettingsOpen(false)}
+      />
+
+      <CommandPalette
+        open={paletteOpen()}
+        onClose={() => setPaletteOpen(false)}
       />
 
       <UpdateBanner />

@@ -38,13 +38,16 @@ src/
   lib/focus.ts           focusable query + Tab containment
   lib/bookmarks.ts       Netscape bookmark HTML import
   lib/links.ts           monogram + hostname + favicon URL helpers
-  lib/weather.ts         Open-Meteo URL/parse + WMO code descriptions
+  lib/palette.ts         link ranking for the command palette
+  lib/cache.ts           clear the service-worker favicon cache
+  lib/weather.ts         Open-Meteo URL/parse + WMO codes + reverse geocoding
   store/settings.ts       Solid store, persisted
   store/clock.ts          network-corrected clock, cached offset
   store/weather.ts        geolocation + cached weather reading
   store/pwa.ts            service-worker update state
   components/
     SearchBar.tsx         input + submit + engine toggle
+    CommandPalette.tsx    Ctrl/Cmd+K fuzzy link jump
     QuickLinks.tsx        one column per group of icon/monogram tiles
     Clock.tsx             live clock + date + greeting
     Weather.tsx           current temperature + conditions
@@ -72,7 +75,8 @@ src/
 - No Google services, no external fonts (IBM Plex Mono is self-hosted), no telemetry.
 - Outbound requests are limited to: optional network-time sync
   (`one.one.one.one`), link favicons (`icons.duckduckgo.com`), and — only when
-  weather is enabled — Open-Meteo. All are listed in the CSP `connect-src`.
+  weather is enabled — Open-Meteo plus Open-Meteo/BigDataCloud place lookup. All
+  are listed in the CSP `connect-src`.
 - Link tiles fall back to **monogram letters** when favicons are off, so nothing
   leaks and everything still works offline.
 
@@ -102,6 +106,15 @@ time and the local clock:
 - **a11y**: the settings dialog traps Tab and restores focus on close; the clock
   exposes `role="timer"` with an accessible label; reduced motion is respected.
 - **Bookmark import**: Netscape/Firefox/Chrome HTML exports become link groups.
+- **Command palette**: `Ctrl`/`Cmd`+`K` fuzzy-searches links locally and opens the
+  chosen one; no network.
+- **Offline badge**: `navigator.onLine` plus `online`/`offline` events show an
+  `OFFLINE` marker in the bar.
+- **Clock options**: 12/24-hour and seconds toggle.
+- **Cache controls**: Settings can clear the favicon cache, weather cache and
+  cached clock offset.
+- **Weather extras**: reverse-geocoded place name, feels-like temperature, wind
+  speed and a day/night glyph.
 - **Weather (opt-in)**: uses the browser geolocation prompt, or manual
   latitude/longitude, then Open-Meteo (keyless, CORS). The reading is cached so
   it survives a reload offline. There is no search autocomplete: DuckDuckGo's
@@ -114,7 +127,8 @@ time and the local clock:
 | Key | Action |
 | --- | --- |
 | `/` | focus search |
-| `Esc` | blur / close settings |
+| `Ctrl`/`Cmd`+`K` | toggle the command palette |
+| `Esc` | clear search / close palette / close settings / blur |
 | `Alt+1` / `Alt+2` | select DDG / DDG No-AI |
 | `t` | cycle theme (dark → light → system) |
 | `Enter` | submit search |
@@ -132,7 +146,7 @@ time and the local clock:
 
 ## Verification
 
-- `pnpm test` — logic, store, and DOM component tests (192 tests, 21 files).
+- `pnpm test` — logic, store, and DOM component tests (225 tests, 24 files).
 - `pnpm coverage` — enforces **100%** statements / branches / functions / lines.
 - `pnpm build` — typecheck + static bundle.
 - `pnpm preview` — manual load, then reload offline (DevTools → Network → Offline) to confirm the SW served the app.

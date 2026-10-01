@@ -1,6 +1,7 @@
 import { For, Show, createEffect, createSignal } from 'solid-js'
 import { produce } from 'solid-js/store'
 import { parseBookmarks } from '../lib/bookmarks'
+import { clearFaviconCache } from '../lib/cache'
 import { DEFAULT_SETTINGS, ENGINES, ENGINE_ORDER } from '../config/defaults'
 import { getFocusableElements, trapTabKey } from '../lib/focus'
 import { exportSettings, parseImport } from '../lib/storage'
@@ -54,6 +55,21 @@ export default function SettingsPanel(props: Props) {
   const weatherStatus = () => {
     if (weather.locating()) return 'LOCATING…'
     return statusLabel(weather.status())
+  }
+
+  const clearIconCache = async () => {
+    const cleared = await clearFaviconCache()
+    setStatus(cleared ? 'Icon cache cleared.' : 'No icon cache to clear.')
+  }
+
+  const clearWeatherCache = () => {
+    weather.clear()
+    setStatus('Weather cache cleared.')
+  }
+
+  const clearClockOffset = () => {
+    clock.clear()
+    setStatus('Clock offset cleared.')
   }
 
   const mutateGroups = (fn: (groups: LinkGroup[]) => void) =>
@@ -184,6 +200,7 @@ export default function SettingsPanel(props: Props) {
                 <span>DEFAULT ENGINE</span>
                 <select
                   class="input"
+                  aria-label="Default engine"
                   value={settings.engine}
                   onChange={(event) =>
                     setSettings('engine', event.currentTarget.value as EngineId)
@@ -199,6 +216,7 @@ export default function SettingsPanel(props: Props) {
                 <span>THEME</span>
                 <select
                   class="input"
+                  aria-label="Theme"
                   value={settings.theme}
                   onChange={(event) =>
                     setSettings('theme', event.currentTarget.value as ThemeMode)
@@ -216,6 +234,7 @@ export default function SettingsPanel(props: Props) {
                 <span>TIME ZONE</span>
                 <input
                   class="input"
+                  aria-label="Time zone"
                   list="timezone-list"
                   value={settings.timeZone}
                   placeholder={`AUTO (${detectedTimeZone()})`}
@@ -228,6 +247,7 @@ export default function SettingsPanel(props: Props) {
                 <span class="check">
                   <input
                     type="checkbox"
+                    aria-label="Sync clock"
                     checked={settings.syncTime}
                     onChange={(event) =>
                       setSettings('syncTime', event.currentTarget.checked)
@@ -244,12 +264,45 @@ export default function SettingsPanel(props: Props) {
                 <span class="check">
                   <input
                     type="checkbox"
+                    aria-label="Show favicons"
                     checked={settings.favicons}
                     onChange={(event) =>
                       setSettings('favicons', event.currentTarget.checked)
                     }
                   />
                   <span>SHOW FAVICONS</span>
+                </span>
+              </label>
+            </div>
+
+            <div class="row">
+              <label class="field">
+                <span>CLOCK FORMAT</span>
+                <span class="check">
+                  <input
+                    type="checkbox"
+                    aria-label="24-hour clock"
+                    checked={settings.clock24}
+                    onChange={(event) =>
+                      setSettings('clock24', event.currentTarget.checked)
+                    }
+                  />
+                  <span>24-HOUR</span>
+                </span>
+              </label>
+
+              <label class="field">
+                <span>SECONDS</span>
+                <span class="check">
+                  <input
+                    type="checkbox"
+                    aria-label="Show seconds"
+                    checked={settings.showSeconds}
+                    onChange={(event) =>
+                      setSettings('showSeconds', event.currentTarget.checked)
+                    }
+                  />
+                  <span>SHOW SECONDS</span>
                 </span>
               </label>
             </div>
@@ -282,6 +335,7 @@ export default function SettingsPanel(props: Props) {
                 <span class="check">
                   <input
                     type="checkbox"
+                    aria-label="Show weather"
                     checked={settings.weather.enabled}
                     onChange={(event) =>
                       setSettings(
@@ -299,6 +353,7 @@ export default function SettingsPanel(props: Props) {
                 <span>UNITS</span>
                 <select
                   class="input"
+                  aria-label="Weather units"
                   value={settings.weather.unit}
                   onChange={(event) =>
                     setSettings(
@@ -321,6 +376,7 @@ export default function SettingsPanel(props: Props) {
                   class="input"
                   type="number"
                   step="any"
+                  aria-label="Latitude"
                   value={settings.weather.latitude ?? ''}
                   onChange={(event) =>
                     setCoordinate('latitude', event.currentTarget.value)
@@ -334,6 +390,7 @@ export default function SettingsPanel(props: Props) {
                   class="input"
                   type="number"
                   step="any"
+                  aria-label="Longitude"
                   value={settings.weather.longitude ?? ''}
                   onChange={(event) =>
                     setCoordinate('longitude', event.currentTarget.value)
@@ -347,6 +404,7 @@ export default function SettingsPanel(props: Props) {
                 <span>PLACE NAME</span>
                 <input
                   class="input"
+                  aria-label="Place name"
                   value={settings.weather.label}
                   placeholder="Optional"
                   onInput={(event) =>
@@ -499,6 +557,23 @@ export default function SettingsPanel(props: Props) {
                 {status()}
               </p>
             </Show>
+
+            <h3>CACHES</h3>
+            <div class="row-buttons">
+              <button
+                type="button"
+                class="btn"
+                onClick={() => void clearIconCache()}
+              >
+                CLEAR ICONS
+              </button>
+              <button type="button" class="btn" onClick={clearWeatherCache}>
+                CLEAR WEATHER
+              </button>
+              <button type="button" class="btn" onClick={clearClockOffset}>
+                CLEAR CLOCK
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -18,6 +18,8 @@ afterEach(() => {
   document.body.innerHTML = ''
   vi.useRealTimers()
   setSettings('timeZone', '')
+  setSettings('clock24', true)
+  setSettings('showSeconds', true)
 })
 
 describe('Clock', () => {
@@ -50,6 +52,27 @@ describe('Clock', () => {
     )
 
     dispose()
+  })
+
+  it('honours the clock format options', () => {
+    setSettings('timeZone', 'UTC')
+    clock.configure({ now: () => at('2026-09-27T10:05:09Z') })
+
+    setSettings('clock24', false)
+    const twelve = mount()
+    expect(
+      twelve.container.querySelector('.clock-time')?.textContent?.toLowerCase(),
+    ).toContain('am')
+    twelve.dispose()
+    twelve.container.remove()
+
+    setSettings('clock24', true)
+    setSettings('showSeconds', false)
+    const noSeconds = mount()
+    expect(noSeconds.container.querySelector('.clock-time')?.textContent).toBe(
+      '10:05',
+    )
+    noSeconds.dispose()
   })
 
   it('ticks every second and stops on cleanup', async () => {

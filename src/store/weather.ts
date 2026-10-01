@@ -1,5 +1,5 @@
 import { createRoot, createSignal } from 'solid-js'
-import { fetchWeather } from '../lib/weather'
+import { fetchPlaceName, fetchWeather } from '../lib/weather'
 import type { Weather } from '../lib/weather'
 import { settings, setSettings } from './settings'
 
@@ -38,6 +38,11 @@ function readCache(): Weather | null {
     }
     return {
       temperature: parsed.temperature,
+      apparentTemperature:
+        typeof parsed.apparentTemperature === 'number'
+          ? parsed.apparentTemperature
+          : parsed.temperature,
+      windSpeed: typeof parsed.windSpeed === 'number' ? parsed.windSpeed : 0,
       unit: parsed.unit === 'fahrenheit' ? 'fahrenheit' : 'celsius',
       code: parsed.code,
       description:
@@ -104,11 +109,17 @@ export const weather = createRoot(() => {
 
       setLocating(true)
       geolocation.getCurrentPosition(
-        (position) => {
-          setSettings('weather', 'latitude', position.coords.latitude)
-          setSettings('weather', 'longitude', position.coords.longitude)
+        async (position) => {
+          const { latitude, longitude } = position.coords
+          setSettings('weather', 'latitude', latitude)
+          setSettings('weather', 'longitude', longitude)
           setLocating(false)
-          void refresh().then(resolve)
+          await refresh()
+          if (settings.weather.label === '') {
+            const name = await fetchPlaceName(latitude, longitude, options.fetchImpl)
+            if (name) setSettings('weather', 'label', name)
+          }
+          resolve(true)
         },
         () => {
           setStatus('denied')
@@ -119,10 +130,21 @@ export const weather = createRoot(() => {
       )
     })
 
+  /** Drop the cached reading. */
+  const clear = () => {
+    setData(null)
+    setStatus('idle')
+    try {
+      localStorage.removeItem(CACHE_KEY)
+    } catch {
+      // Storage unavailable — nothing to clear.
+    }
+  }
+
   /** Test seam: inject a fetch implementation. */
   const configure = (next: WeatherOptions) => {
     options = next
   }
 
-  return { data, status, locating, refresh, useCurrentLocation, configure }
+  return { data, status, locating, refresh, useCurrentLocation, configure, clear }
 })

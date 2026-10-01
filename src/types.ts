@@ -43,6 +43,10 @@ export interface Settings {
   syncTime: boolean
   /** Show site favicons on link tiles instead of monograms. */
   favicons: boolean
+  /** 24-hour clock when true, 12-hour when false. */
+  clock24: boolean
+  /** Show seconds in the clock. */
+  showSeconds: boolean
   weather: WeatherSettings
   groups: LinkGroup[]
 }
