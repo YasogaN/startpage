@@ -11,7 +11,7 @@ everything for offline use.
 | --- | --- |
 | Stack | SolidJS + Vite + TypeScript (static `dist/`) |
 | Aesthetic | Minimalist brutalism — `#000` / `#fff`, dark red `#8b0000`, IBM Plex Mono, 0 radius, 2–4px rules, hard shadows, uppercase labels |
-| Icons | DuckDuckGo favicon service, rendered as themed black/white silhouettes; monogram fallback |
+| Icons | DuckDuckGo favicon service on a neutral chip (so opaque brand icons stay legible); monogram fallback |
 | Suggestions | On-device (recent searches + saved links), opt-in — no proxy, no network |
 | Search | DuckDuckGo (initial default) + DuckDuckGo No-AI, visible segmented toggle |
 | Search URLs | `https://duckduckgo.com/?q=%s` and `https://noai.duckduckgo.com/?q=%s` |

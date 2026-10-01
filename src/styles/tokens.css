@@ -17,8 +17,8 @@
   --accent: var(--red);
   --accent-fg: #fff;
   --accent-text: var(--red-bright);
-  /* Turn the one fetched favicon into a themed silhouette. */
-  --icon-filter: brightness(0) invert(1);
+  /* Favicons sit on a light chip so any icon stays legible. */
+  --icon-chip: #fff;
   color-scheme: dark;
 }
 
@@ -31,6 +31,6 @@
   --accent: var(--red);
   --accent-fg: #fff;
   --accent-text: var(--red);
-  --icon-filter: brightness(0);
+  --icon-chip: #fff;
   color-scheme: light;
 }

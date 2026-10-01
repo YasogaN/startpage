@@ -323,7 +323,8 @@ kbd {
   width: 34px;
   height: 34px;
   border: var(--border-w) solid var(--line);
-  background: var(--bg);
+  /* Neutral chip: opaque, colourful brand favicons stay readable in both themes. */
+  background: var(--icon-chip);
 }
 
 .tile:hover .tile-icon,
@@ -343,11 +344,9 @@ kbd {
 }
 
 .favicon {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   object-fit: contain;
-  /* Single fetched icon, themed to a black or white silhouette. */
-  filter: var(--icon-filter);
 }
 
 .tile-text {

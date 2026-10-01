@@ -7,8 +7,8 @@ bundle, and installable/offline via a service worker.
 - **Search:** DuckDuckGo (default) and DuckDuckGo No-AI, with native `!bangs`.
   Bare domains navigate directly.
 - **Links:** one column per group. Favicons come from DuckDuckGo's icon service
-  and are drawn as themed black/white silhouettes (with a monogram fallback);
-  browser bookmark HTML exports can be imported.
+  and sit on a neutral chip so they read in both themes (with a monogram
+  fallback); browser bookmark HTML exports can be imported.
 - **Suggestions:** optional, on-device — matching saved links and recent
   searches. No proxy, no network.
 - **Settings:** edit links, import/export JSON, import bookmarks, engine, theme
