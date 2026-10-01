@@ -37,12 +37,15 @@ src/
   lib/theme.ts           system color-scheme preference + resolution
   lib/focus.ts           focusable query + Tab containment
   lib/bookmarks.ts       Netscape bookmark HTML import
+  lib/links.ts           monogram + hostname + favicon URL helpers
+  lib/suggest.ts         on-device suggestion matching
   store/settings.ts       Solid store, persisted
   store/clock.ts          network-corrected clock, cached offset
+  store/history.ts        recent searches for suggestions
   store/pwa.ts            service-worker update state
   components/
-    SearchBar.tsx         input + submit + engine segmented control
-    QuickLinks.tsx        monogram tiles grouped by category
+    SearchBar.tsx         input + submit + engine toggle + suggestions
+    QuickLinks.tsx        one column per group of icon/monogram tiles
     Clock.tsx             live clock + date + greeting
     ThemeToggle.tsx       cycles dark / light / system
     UpdateBanner.tsx      "new version" prompt -> reload
