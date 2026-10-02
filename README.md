@@ -93,6 +93,30 @@ There is intentionally **no search autocomplete**: DuckDuckGo's suggestions send
 no CORS headers and no JSONP, so they cannot be read from the browser without a
 proxy, and adding a proxy was not wanted.
 
+## Set as your new tab
+
+Point your browser's new tab at `https://startpage.yasogan.dev` (or your own
+deployment). Most browsers don't allow a custom new-tab URL on their own — that
+visibility was removed to prevent new-tab hijacking — so it is either an
+extension or a setting, depending on the browser.
+
+- **Firefox / LibreWolf** — no native custom URL (`browser.newtab.url` was
+  removed, and the built-in *New tabs* menu only offers **Firefox Home** or
+  **Blank Page**). Install
+  [New Tab Override](https://addons.mozilla.org/firefox/addon/new-tab-override/)
+  and set it to `https://startpage.yasogan.dev`.
+- **Chrome / Edge / Brave (Chromium)** — also no native setting; use a Manifest V3
+  extension such as *New Tab Redirect* or *Custom New Tab URL*. Managed/enterprise
+  devices can use the `NewTabPageLocation` policy instead.
+- **Safari (macOS)** — native, no extension: **Settings → General**, set
+  **Homepage** to `https://startpage.yasogan.dev` and **New tabs open with** to
+  **Homepage**.
+- **Safari (iOS/iPadOS)** — not possible; the Start Page can't point at an
+  arbitrary URL.
+
+You can also install the site as a PWA (the install icon in Chrome/Edge, or
+**Install** in Firefox) for a standalone, chrome-less window that works offline.
+
 ## Deploy to Cloudflare Pages
 
 | Setting | Value |
