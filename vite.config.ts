@@ -51,18 +51,11 @@ export default defineConfig(({ mode }) => ({
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
-        runtimeCaching: [
-          {
-            // Cache favicons so tiles keep their icons offline.
-            urlPattern: /^https:\/\/icons\.duckduckgo\.com\//,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'favicons',
-              expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 30 },
-              cacheableResponse: { statuses: [0, 200] },
-            },
-          },
-        ],
+        // Favicons are deliberately NOT cached here. DuckDuckGo's icon host
+        // sends no CORS headers, so those responses are opaque; caching them
+        // via `CacheFirst` makes Firefox reject the intercepted request with
+        // NS_ERROR_INTERCEPTION_FAILED. The browser's own HTTP cache handles
+        // them (DDG sets max-age=2592000), and tiles fall back to a monogram.
       },
     }),
   ],
