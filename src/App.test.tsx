@@ -71,7 +71,7 @@ describe('App', () => {
   it('renders the clock, search, engine toggle and link tiles', () => {
     const { container, dispose } = mount()
 
-    expect(container.textContent).toContain('NEW TAB')
+    expect(container.textContent).toContain('STARTPAGE')
     expect(container.querySelector('.clock-time')?.textContent).toMatch(
       /^\d{2}:\d{2}:\d{2}$/,
     )

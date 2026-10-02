@@ -1,6 +1,6 @@
-# New Tab
+# Startpage
 
-A minimalist **brutalist** new tab page — pure black/white with a red accent, no
+A minimalist **brutalist** startpage — pure black/white with a red accent, no
 border-radius, hard shadows. Built with SolidJS + Vite, compiled to a static
 bundle, and installable/offline via a service worker.
 

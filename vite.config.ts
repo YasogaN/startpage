@@ -26,9 +26,9 @@ export default defineConfig(({ mode }) => ({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'New Tab',
-        short_name: 'New Tab',
-        description: 'A minimalist brutalist new tab page. Offline-first, no tracking.',
+        name: 'Startpage',
+        short_name: 'Startpage',
+        description: 'A minimalist brutalist startpage. Offline-first, no tracking.',
         theme_color: '#000000',
         background_color: '#000000',
         display: 'standalone',
