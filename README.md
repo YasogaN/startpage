@@ -143,10 +143,10 @@ Before you deploy, edit `wrangler.jsonc`:
   account.
 
 `public/_headers` ships with the build and sets a strict Content-Security-Policy
-(`connect-src` allows the clock, favicon, Open-Meteo and BigDataCloud hosts),
-immutable caching for `/assets/*`, and `no-cache` for `/sw.js`, `/index.html` and
-the manifest, so service-worker updates are picked up immediately. Since `dist/`
-is self-contained, any static host will do.
+(`connect-src` allows the clock, Open-Meteo and BigDataCloud hosts, and `img-src`
+the DuckDuckGo favicon service), immutable caching for `/assets/*`, and `no-cache`
+for `/sw.js`, `/index.html` and the manifest, so service-worker updates are picked
+up immediately. Since `dist/` is self-contained, any static host will do.
 
 ## Keyboard shortcuts
 
@@ -173,3 +173,7 @@ load the page once, then go offline in DevTools and reload.
 **24** files), and `pnpm coverage` enforces **100%** statements, branches,
 functions and lines. CI (`.github/workflows/ci.yml`) runs coverage and the
 production build on every push and pull request.
+
+## License
+
+Released under the [MIT License](LICENSE).
