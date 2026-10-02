@@ -81,12 +81,11 @@ export const weather = createRoot(() => {
     }
 
     setStatus('loading')
-    const result = await fetchWeather(
-      latitude,
-      longitude,
-      unit,
-      options.fetchImpl,
-    )
+    // One retry: a dropped request or a cold network at startup should not
+    // leave the panel stuck on UNAVAILABLE until the next timer tick.
+    const result =
+      (await fetchWeather(latitude, longitude, unit, options.fetchImpl)) ??
+      (await fetchWeather(latitude, longitude, unit, options.fetchImpl))
     if (!result) {
       setStatus('error')
       return false

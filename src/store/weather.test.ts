@@ -114,6 +114,25 @@ describe('refresh', () => {
     expect(localStorage.getItem(CACHE_KEY)).toContain('"temperature":7')
   })
 
+  it('retries once after a failed request', async () => {
+    const { weather, setSettings } = await load()
+    setSettings('weather', 'latitude', 1)
+    setSettings('weather', 'longitude', 2)
+    let calls = 0
+    weather.configure({
+      fetchImpl: (async () => {
+        calls += 1
+        if (calls === 1) throw new Error('blip')
+        return ok(payload())
+      }) as unknown as typeof fetch,
+    })
+
+    expect(await weather.refresh()).toBe(true)
+    expect(calls).toBe(2)
+    expect(weather.status()).toBe('ready')
+    expect(weather.data()?.temperature).toBe(7)
+  })
+
   it('reports an error and keeps the previous reading', async () => {
     const { weather, setSettings } = await load()
     setSettings('weather', 'latitude', 1)

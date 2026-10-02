@@ -49,7 +49,7 @@ describe('QuickLinks', () => {
     dispose()
   })
 
-  it('renders favicons and falls back to a monogram on error', async () => {
+  it('retries a favicon once before falling back to a monogram', async () => {
     setSettings('groups', [structuredClone(groups[0])])
     setSettings('favicons', true)
     const { container, dispose } = mount()
@@ -60,6 +60,14 @@ describe('QuickLinks', () => {
     )
 
     image.dispatchEvent(new Event('error'))
+    await tick()
+    const retried = container.querySelector('.favicon') as HTMLImageElement
+    expect(retried).not.toBeNull()
+    expect(retried.getAttribute('src')).toContain(
+      'https://icons.duckduckgo.com/ip3/github.com.ico?v=',
+    )
+
+    retried.dispatchEvent(new Event('error'))
     await tick()
     expect(container.querySelector('.favicon')).toBeNull()
     expect(container.querySelector('.mono')?.textContent).toBe('G')

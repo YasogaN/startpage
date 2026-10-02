@@ -5,8 +5,23 @@ import type { LinkItem } from '../types'
 
 function Tile(props: { link: LinkItem }) {
   const [failed, setFailed] = createSignal(false)
-  const icon = () =>
-    settings.favicons && !failed() ? faviconUrl(props.link.url) : null
+  // A cache-busting key for the single retry. It also sidesteps a bad
+  // service-worker cache entry, which would otherwise be served for 30 days.
+  const [retryKey, setRetryKey] = createSignal<string | null>(null)
+
+  const icon = () => {
+    if (!settings.favicons || failed()) return null
+    const base = faviconUrl(props.link.url)
+    if (!base) return null
+    const key = retryKey()
+    return key ? `${base}?v=${key}` : base
+  }
+
+  const onError = () => {
+    // Retry once (transient network / poisoned cache), then fall back.
+    if (retryKey() === null) setRetryKey(String(Date.now()))
+    else setFailed(true)
+  }
 
   return (
     <li>
@@ -27,7 +42,7 @@ function Tile(props: { link: LinkItem }) {
               width="24"
               height="24"
               loading="lazy"
-              onError={() => setFailed(true)}
+              onError={onError}
             />
           </Show>
         </span>
