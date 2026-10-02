@@ -22,5 +22,17 @@
   // No `main`/`binding` keys: those are only for a Worker script.
   "assets": {
     "directory": "./dist"
-  }
+  },
+
+  // Custom domain. `wrangler deploy` creates the DNS record and certificate.
+  // The zone (yasogan.dev) must be an active Cloudflare zone in this account,
+  // and the hostname must not already have a CNAME. Exact match only, so add
+  // another entry if you also want www.
+  // Docs: https://developers.cloudflare.com/workers/configuration/routing/custom-domains/
+  "routes": [
+    {
+      "pattern": "startpage.yasogan.dev",
+      "custom_domain": true
+    }
+  ]
 }
