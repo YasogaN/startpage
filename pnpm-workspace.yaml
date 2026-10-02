@@ -1,0 +1,5 @@
+# Trusted dependencies whose install/build scripts pnpm runs on `pnpm install`.
+# esbuild ships Vite's build tooling; workerd is Wrangler's local runtime.
+allowBuilds:
+  esbuild: true
+  workerd: true

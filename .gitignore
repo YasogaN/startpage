@@ -15,6 +15,9 @@ dist-ssr
 # Test / tooling output
 coverage
 
+# Cloudflare Wrangler local state
+.wrangler
+
 # Editor / tooling sessions
 .opencode
 

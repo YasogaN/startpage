@@ -1,0 +1,26 @@
+{
+  // Cloudflare Workers configuration for an assets-only deployment.
+  //
+  // The site is a static Vite/SolidJS bundle, so there is no Worker script:
+  // only `assets` is configured. Build first (`pnpm build` -> ./dist), then
+  // deploy with `pnpm deploy` (`wrangler deploy`).
+  //
+  // Docs:
+  //   https://developers.cloudflare.com/workers/static-assets/
+  //   https://developers.cloudflare.com/workers/wrangler/configuration/
+  "$schema": "./node_modules/wrangler/config-schema.json",
+
+  // Worker/project name in the Cloudflare dashboard.
+  "name": "startpage",
+
+  // Set to the date this config was created. See:
+  // https://developers.cloudflare.com/workers/configuration/compatibility-dates/
+  "compatibility_date": "2026-10-01",
+
+  // Serve the Vite build output. `dist/_headers` (copied from `public/`) is
+  // parsed automatically by Workers and applies the CSP and cache rules.
+  // No `main`/`binding` keys: those are only for a Worker script.
+  "assets": {
+    "directory": "./dist"
+  }
+}
