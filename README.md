@@ -24,6 +24,13 @@ bundle, and installable/offline via a service worker.
   before reloading, and an `OFFLINE` badge appears when the network drops.
 - **Security:** strict Content-Security-Policy via Cloudflare `_headers`.
 
+## Usage
+
+- **Hosted:** open <https://startpage.yasogan.dev> — and optionally set it as your
+  browser's new tab (see [Set as your new tab](#set-as-your-new-tab)).
+- **Self-hosted:** build the static bundle and deploy it yourself (see
+  [Deploy your own](#deploy-your-own)). Any static host works.
+
 ## Project layout
 
 ```
@@ -117,19 +124,29 @@ extension or a setting, depending on the browser.
 You can also install the site as a PWA (the install icon in Chrome/Edge, or
 **Install** in Firefox) for a standalone, chrome-less window that works offline.
 
-## Deploy to Cloudflare Pages
+## Deploy your own
 
-| Setting | Value |
-| --- | --- |
-| Build command | `pnpm build` |
-| Build output directory | `dist` |
-| Node version | 22+ |
+The build is a fully static `dist/`, deployed as a Cloudflare **Worker with
+static assets** (see `wrangler.jsonc`). Node 22+ is required.
+
+```bash
+pnpm install
+pnpm build      # tsc -b && vite build -> dist/
+pnpm deploy     # pnpm build && wrangler deploy
+```
+
+Before you deploy, edit `wrangler.jsonc`:
+
+- change `name` to your own Worker name;
+- replace — or remove — the `routes` entry, which points at
+  `startpage.yasogan.dev` and only works when that zone is in your Cloudflare
+  account.
 
 `public/_headers` ships with the build and sets a strict Content-Security-Policy
-(`connect-src` allows only the clock, favicon, Open-Meteo and BigDataCloud
-hosts), immutable
-caching for `/assets/*`, and `no-cache` for `/sw.js`, `/index.html` and the
-manifest, so service-worker updates are picked up immediately.
+(`connect-src` allows the clock, favicon, Open-Meteo and BigDataCloud hosts),
+immutable caching for `/assets/*`, and `no-cache` for `/sw.js`, `/index.html` and
+the manifest, so service-worker updates are picked up immediately. Since `dist/`
+is self-contained, any static host will do.
 
 ## Keyboard shortcuts
 
